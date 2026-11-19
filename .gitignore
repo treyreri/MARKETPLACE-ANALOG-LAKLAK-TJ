@@ -1,0 +1,17 @@
+# python
+__pycache__/
+*.pyc
+venv/
+
+# environment
+.env
+
+# database
+*.db
+
+# uploads
+uploads/*
+!uploads/.gitkeep
+
+# IDE
+.vscode/
