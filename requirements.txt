@@ -3,3 +3,5 @@ uvicorn[standard]
 sqlalchemy
 alembic
 pydantic-settings
+pyjwt
+pwdlib[argon2]
