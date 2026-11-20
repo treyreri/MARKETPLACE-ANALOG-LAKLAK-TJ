@@ -6,3 +6,6 @@ app = FastAPI(title = settings.app_name)
 @app.get("/health")
 def health_check():
     return {"status" : "ok"}
+
+from app.routers import auth
+app.include_router(auth.router)
