@@ -1,7 +1,5 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.schemas.user import Token, UserLogin, UserRead, UserRegister
@@ -9,7 +7,7 @@ from app.services import auth_service
 from app.utils.security import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-DbSession = Annotated[Session, Depends(get_db)]
+from app.database import DbSession
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)

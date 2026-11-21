@@ -30,3 +30,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+from typing import Annotated
+from fastapi import Depends
+from sqlalchemy.orm import Session
+DbSession = Annotated[Session, Depends(get_db)]
