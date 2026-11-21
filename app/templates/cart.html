@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container section" data-cart-page>
+  <h1 data-i18n="cart.title">Shopping cart</h1>
+
+  <!-- step 1: cart -->
+  <div class="cart-layout" data-step="cart" hidden>
+    <ul class="cart-list" data-cart-items></ul>
+    <aside class="cart-summary">
+      <div class="summary-row"><span data-i18n="cart.items">Items</span><strong data-field="count"></strong></div>
+      <div class="summary-row summary-total"><span data-i18n="cart.total">Total</span><strong data-field="total"></strong></div>
+      <p class="cart-warning" data-field="warning" hidden data-i18n="cart.invalid_items">Some items are unavailable or exceed stock. Update them to continue.</p>
+      <button type="button" class="btn btn-primary btn-block" data-action="checkout" data-i18n="cart.checkout">Checkout</button>
+    </aside>
+  </div>
+
+  <!-- step 2: checkout form (spec 11) -->
+  <div class="cart-layout" data-step="checkout" hidden>
+    <form class="form checkout-form" novalidate>
+      <h2 class="h3" data-i18n="checkout.title">Delivery details</h2>
+      <div class="form-error" role="alert" hidden></div>
+      <label class="field">
+        <span data-i18n="checkout.name">Name</span>
+        <input class="input" name="recipient_name" autocomplete="name" maxlength="100" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="form.phone">Phone number</span>
+        <input class="input" name="phone_number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+992XXXXXXXXX" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="checkout.address">Delivery address</span>
+        <input class="input" name="address" autocomplete="street-address" maxlength="255" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="checkout.comment">Comment to the order</span>
+        <textarea class="input" name="comment" maxlength="1000"></textarea>
+      </label>
+      <fieldset class="field payment">
+        <legend data-i18n="checkout.payment">Payment method</legend>
+        <label class="radio"><input type="radio" name="payment_method" value="cash_on_delivery" checked> <span data-i18n="checkout.cod">Cash on delivery</span></label>
+      </fieldset>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" data-action="back" data-i18n="checkout.back">Back to cart</button>
+        <button type="submit" class="btn btn-primary" data-i18n="checkout.place_order">Place order</button>
+      </div>
+    </form>
+    <aside class="cart-summary">
+      <div class="summary-row"><span data-i18n="cart.items">Items</span><strong data-field="count"></strong></div>
+      <div class="summary-row summary-total"><span data-i18n="cart.total">Total</span><strong data-field="total"></strong></div>
+    </aside>
+  </div>
+
+  <!-- step 3: success -->
+  <div class="success" data-step="success" hidden>
+    <span data-unicorn="empty"></span>
+    <h2 data-i18n="checkout.success_title">Thank you! Your order is placed</h2>
+    <p><span data-i18n="checkout.order_number">Order number</span>: <strong data-field="order-id"></strong></p>
+    <p class="muted"><span data-i18n="cart.total">Total</span>: <strong data-field="order-total"></strong> · <span data-i18n="checkout.cod">Cash on delivery</span></p>
+    <div class="form-actions">
+      <a class="btn btn-primary" href="/catalog" data-i18n="checkout.continue">Continue shopping</a>
+    </div>
+  </div>
+
+  <div data-state></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/cart.js"></script>
+{% endblock %}
