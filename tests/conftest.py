@@ -5,9 +5,9 @@ import pytest
 from fastapi.testclient import TestClient
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool
 
 import app.models  # noqa: F401  registers all models on Base.metadata
 from app.database import Base, configure_sqlite, get_db
@@ -24,22 +24,35 @@ _phones = itertools.count(1)
 security.password_hasher = PasswordHash((Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1),))
 
 
-@pytest.fixture
-def engine():
-    # One shared in-memory connection (StaticPool), fresh schema per test
+@pytest.fixture(scope="session")
+def engine(tmp_path_factory):
+    # File DB + NullPool: every session gets its own connection. A shared
+    # in-memory connection (StaticPool) deadlocked intermittently because the
+    # get_db teardown ran in TestClient's worker thread while the test thread
+    # was already using the same connection.
+    path = tmp_path_factory.mktemp("db") / "test.db"
     engine = create_engine(
-        "sqlite://",
+        f"sqlite:///{path.as_posix()}",
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool, )
+        poolclass=NullPool, )
     event.listen(engine, "connect", configure_sqlite)  # FK pragma + unicode lower()
     Base.metadata.create_all(engine)
     yield engine
     engine.dispose()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def session_factory(engine):
     return sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+
+@pytest.fixture(autouse=True)
+def clean_tables(engine):
+    """Autouse, so it is set up first and torn down last, after all sessions close."""
+    yield
+    with engine.begin() as connection:
+        for table in reversed(Base.metadata.sorted_tables):
+            connection.execute(text(f'DELETE FROM "{table.name}"'))
 
 
 @pytest.fixture
