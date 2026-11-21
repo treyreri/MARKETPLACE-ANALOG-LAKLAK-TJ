@@ -10,6 +10,18 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hasher.verify(plain_password, hashed_password)
 
+
+_dummy_hash: str | None = None
+
+
+def burn_password_check(plain_password: str) -> None:
+    """Spend the same time as a real check when the user does not exist,
+    so response time does not reveal which phone numbers are registered."""
+    global _dummy_hash
+    if _dummy_hash is None:
+        _dummy_hash = hash_password("dummy-password-for-timing")
+    verify_password(plain_password, _dummy_hash)
+
 def create_access_token(user_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.access_token_expire_minutes )

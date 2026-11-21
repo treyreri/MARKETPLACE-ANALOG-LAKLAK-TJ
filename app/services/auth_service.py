@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.schemas.user import UserRegister
-from app.utils.security import hash_password, verify_password
+from app.utils.security import burn_password_check, hash_password, verify_password
 
 class PhoneAlreadyRegisteredError(Exception):
     pass
@@ -32,6 +32,9 @@ def register_user(db: Session, data: UserRegister) -> User:
 
 def authenticate_user(db: Session, phone_number: str, password: str) -> User | None:
     user = get_user_by_phone(db, phone_number)
-    if user is None or not verify_password(password, user.password_hash):
+    if user is None:
+        burn_password_check(password)
+        return None
+    if not verify_password(password, user.password_hash):
         return None
     return user
