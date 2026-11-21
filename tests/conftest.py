@@ -3,6 +3,8 @@ from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -11,12 +13,15 @@ import app.models  # noqa: F401  registers all models on Base.metadata
 from app.database import Base, configure_sqlite, get_db
 from app.main import app
 from app.models import Category, CourierProfile, Product, SellerProfile, User, UserRole
-from app.utils import files
+from app.utils import files, security
 from app.utils.enums import RoleName, TransportType
 from app.utils.security import create_access_token, hash_password
 
 PASSWORD = "secret123"
 _phones = itertools.count(1)
+
+# Production argon2 parameters are deliberately slow; tests only need a real hash
+security.password_hasher = PasswordHash((Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1),))
 
 
 @pytest.fixture
