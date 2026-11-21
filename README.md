@@ -77,14 +77,24 @@ pytest
 
 Tests use a temporary SQLite file and never touch `pixel_unicorn.db` or `uploads/`.
 
+## Pages
+
+| Page | URL |
+|---|---|
+| Home, catalog, product | `/`, `/catalog`, `/product/{id}` |
+| Login, register | `/login`, `/register` |
+| Cart and checkout | `/shopping-cart` |
+| Profile, my orders | `/account`, `/account/orders` |
+| Become a seller / courier | `/seller/apply`, `/courier/apply` |
+| Seller / Courier Login (spec §17) | `/seller/login`, `/courier/login` |
+| Application status | `/application/seller`, `/application/courier` |
+| Seller dashboard | `/dashboard/seller` |
+| Courier dashboard | `/dashboard/courier` |
+| Admin panel | `/admin` |
+| About, Contact, Terms | `/about`, `/contact`, `/terms` |
+
+`/cart` and `/orders` are JSON API paths, so the pages use `/shopping-cart` and `/account/orders`.
+
 ## TODO
 
-- #21 Quantize SQL `SUM` of prices to `Decimal` (SQLite stores NUMERIC as REAL/INTEGER).
 - #22 Move repeated `try/except → HTTPException` in routers to global exception handlers (plan needs approval).
-- #25 Partial unique index so a user cannot have two pending applications under a race.
-- #29 Delete the newly saved image when the DB commit fails (orphan files).
-- `PATCH /auth/me` to set first/last name after registration (spec §9).
-- Admin users: paginated list with phone search, roles, block/unblock (spec §16).
-- Admin products: list incl. hidden, hide/show, edit, delete, filter by seller (spec §16).
-- `GET /seller/statistics`: products, units sold and revenue from delivered orders, orders by status (spec §13).
-- Frontend 4.4–4.8: catalog, product page, login/register, cart/checkout/orders, footer flows.
