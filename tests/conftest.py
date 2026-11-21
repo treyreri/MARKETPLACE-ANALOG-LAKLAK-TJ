@@ -1,5 +1,9 @@
 import itertools
+import os
 from decimal import Decimal
+
+# Tests must not depend on a developer's .env
+os.environ["SECRET_KEY"] = "test-secret-key-that-is-at-least-32-bytes-long"
 
 import pytest
 from fastapi.testclient import TestClient
