@@ -89,6 +89,12 @@ def _grant_role(user: User, role: RoleName) -> None:
         user.roles.append(UserRole(role=role))
 
 
+def _fill_user_names(user: User, application) -> None:
+    """Registration names are optional; take them from the approved application."""
+    user.first_name = user.first_name or application.first_name
+    user.last_name = user.last_name or application.last_name
+
+
 def _update_fields(obj, values: dict) -> None:
     for field, value in values.items():
         setattr(obj, field, value)
@@ -130,6 +136,7 @@ def review_seller_application(
 def _activate_seller(application: SellerApplication) -> None:
     user = application.user
     _grant_role(user, RoleName.SELLER)
+    _fill_user_names(user, application)
     store_data = {
         "store_name": application.store_name,
         "store_description": application.store_description,
@@ -194,6 +201,7 @@ def review_courier_application(
 def _activate_courier(application: CourierApplication) -> None:
     user = application.user
     _grant_role(user, RoleName.COURIER)
+    _fill_user_names(user, application)
     profile_data = {
         "phone_number": application.phone_number,
         "address": application.address,

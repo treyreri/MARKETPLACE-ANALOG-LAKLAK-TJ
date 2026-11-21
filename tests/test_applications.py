@@ -158,3 +158,19 @@ def test_seller_application_unknown_category(client, customer_headers):
 def test_courier_application_invalid_transport(client, customer_headers):
     body = {**COURIER_APP, "transport_type": "rocket"}
     assert client.post("/courier/applications", json=body, headers=customer_headers).status_code == 422
+
+
+def test_approve_fills_missing_user_names(client, db, kind, make_user, admin_headers):
+    user = make_user()  # registered without first/last name
+    application_id = submit(client, kind, auth(user)).json()["id"]
+    review(client, kind, application_id, admin_headers, "approved")
+    db.expire_all()
+    body = KINDS[kind][2]
+    assert (user.first_name, user.last_name) == (body["first_name"], body["last_name"])
+
+
+def test_approve_keeps_existing_user_names(client, db, customer, customer_headers, admin_headers):
+    application_id = submit(client, "courier", customer_headers).json()["id"]
+    review(client, "courier", application_id, admin_headers, "approved")
+    db.expire_all()
+    assert customer.first_name == "Ali"
