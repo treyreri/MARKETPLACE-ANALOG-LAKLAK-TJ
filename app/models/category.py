@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.utils.enums import Language
+
+if TYPE_CHECKING:
+    from app.models.product import Product
+
 
 class Category(Base):
     __tablename__ = "categories"
@@ -14,10 +19,3 @@ class Category(Base):
 
     def get_name(self, lang: Language) -> str:
         return self.name_en if lang == Language.EN else self.name_ru
-
-
-from typing import TYPE_CHECKING
-from sqlalchemy.orm import relationship
-
-if TYPE_CHECKING:
-    from app.models.product import Product  
