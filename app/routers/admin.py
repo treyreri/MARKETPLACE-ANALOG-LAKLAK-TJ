@@ -42,3 +42,32 @@ def review_seller_application(
         raise APPLICATION_NOT_FOUND
     except ApplicationAlreadyReviewedError:
         raise ALREADY_REVIEWED
+
+
+
+from app.schemas.courier import CourierApplicationRead
+
+@router.get("/courier-applications", response_model=list[CourierApplicationRead])
+def list_courier_applications(db: DbSession, status: ApplicationStatus | None = None):
+    return application_service.list_courier_applications(db, status)
+
+
+@router.get(
+    "/courier-applications/{application_id}", response_model=CourierApplicationRead )
+def get_courier_application(application_id: int, db: DbSession):
+    try:
+        return application_service.get_courier_application(db, application_id)
+    except ApplicationNotFoundError:
+        raise APPLICATION_NOT_FOUND
+
+
+@router.patch(
+    "/courier-applications/{application_id}", response_model=CourierApplicationRead )
+def review_courier_application(
+    application_id: int, data: ApplicationReview, db: DbSession ):
+    try:
+        return application_service.review_courier_application(db, application_id, data)
+    except ApplicationNotFoundError:
+        raise APPLICATION_NOT_FOUND
+    except ApplicationAlreadyReviewedError:
+        raise ALREADY_REVIEWED

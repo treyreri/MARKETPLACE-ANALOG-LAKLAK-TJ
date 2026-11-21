@@ -15,5 +15,7 @@ AdminUser = Annotated[User, Depends(require_admin)]
 
 SellerUser = Annotated[User, Depends(require_role(RoleName.SELLER))]
 
+CourierUser = Annotated[User, Depends(require_role(RoleName.COURIER))]
+
 #require_role — это фабрика dependency: она возвращает функцию-проверку для конкретной роли. 
 #Позже так же сделаем require_role(RoleName.SELLER) и require_role(RoleName.COURIER)

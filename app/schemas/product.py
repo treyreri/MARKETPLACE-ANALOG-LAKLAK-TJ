@@ -76,7 +76,7 @@ class ProductRead(BaseModel):
             brand=product.brand,
             price=product.price,
             quantity=product.quantity,
-            image_url=f"/{product.image}" if product.image else None,
+            image_url=product.image_url,
             is_active=product.is_active,
             created_at=product.created_at,
             category=CategoryShort(

@@ -11,6 +11,11 @@ if TYPE_CHECKING:
 
 
 class Product(Base):
+    
+    @property
+    def image_url(self) -> str | None:
+        return f"/{self.image}" if self.image else None
+
     __tablename__ = "products"
     __table_args__ = (
         CheckConstraint("price >= 0", name="price_non_negative"),

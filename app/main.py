@@ -27,3 +27,6 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 from app.routers import admin, auth, categories, products, seller
 app.include_router(admin.router)
+
+from app.routers import admin, auth, categories, courier, products, seller
+app.include_router(courier.router)

@@ -8,7 +8,7 @@ from app.schemas.application import ApplicationReview
 from app.schemas.seller import SellerApplicationCreate, SellerProfileUpdate
 from app.services import category_service
 from app.utils.enums import ApplicationStatus, RoleName
-
+from app.schemas.courier import CourierProfile, CourierApplication ,CourierApplicationCreate, CourierApplicationRead, CourierProfileRead, CourierProfileUpdate
 
 class ApplicationNotFoundError(Exception):
     pass
@@ -148,6 +148,69 @@ def get_seller_profile(user: User) -> SellerProfile:
 def update_seller_profile(
     db: Session, user: User, data: SellerProfileUpdate ) -> SellerProfile:
     profile = get_seller_profile(user)
+    _update_fields(profile, data.model_dump(exclude_unset=True, exclude_none=True))
+    db.commit()
+    db.refresh(profile)
+    return profile
+
+
+
+class CourierProfileNotFoundError(Exception):
+    pass
+
+#courier
+def submit_courier_application(
+    db: Session, user: User, data: CourierApplicationCreate ) -> CourierApplication:
+    _ensure_can_apply(db, CourierApplication, user, RoleName.COURIER)
+    return _save(db, CourierApplication(user_id=user.id, **data.model_dump()))
+
+
+def get_latest_courier_application(db: Session, user_id: int) -> CourierApplication:
+    return _get_latest(db, CourierApplication, user_id)
+
+
+def list_courier_applications(
+    db: Session, status: ApplicationStatus | None = None ) -> list[CourierApplication]:
+    return _list(db, CourierApplication, status)
+
+
+def get_courier_application(db: Session, application_id: int) -> CourierApplication:
+    return _get(db, CourierApplication, application_id)
+
+
+def review_courier_application(
+    db: Session, application_id: int, data: ApplicationReview ) -> CourierApplication:
+    application = _get(db, CourierApplication, application_id)
+    _apply_review(application, data)
+    if data.status == ApplicationStatus.APPROVED:
+        _activate_courier(application)
+    db.commit()
+    db.refresh(application)
+    return application
+
+
+def _activate_courier(application: CourierApplication) -> None:
+    user = application.user
+    _grant_role(user, RoleName.COURIER)
+    profile_data = {
+        "phone_number": application.phone_number,
+        "address": application.address,
+        "transport_type": application.transport_type,  }
+    if user.courier_profile is None:
+        user.courier_profile = CourierProfile(**profile_data)
+    else:
+        _update_fields(user.courier_profile, profile_data)
+
+
+def get_courier_profile(user: User) -> CourierProfile:
+    if user.courier_profile is None:
+        raise CourierProfileNotFoundError
+    return user.courier_profile
+
+
+def update_courier_profile(
+    db: Session, user: User, data: CourierProfileUpdate ) -> CourierProfile:
+    profile = get_courier_profile(user)
     _update_fields(profile, data.model_dump(exclude_unset=True, exclude_none=True))
     db.commit()
     db.refresh(profile)
