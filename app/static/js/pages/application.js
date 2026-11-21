@@ -35,7 +35,7 @@ async function load() {
     const head = h("div", { class: "page-head" }, h("h1", { text: t(`appstatus.${kind}`) }));
     if (!application) {
       app.replaceChildren(head, message(t("appstatus.none"),
-        h("a", { class: "btn btn-primary", href: `/become-${kind}`, text: t("appstatus.apply") })));
+        h("a", { class: "btn btn-primary", href: `/${kind}/apply`, text: t("appstatus.apply") })));
       return;
     }
 
@@ -51,7 +51,7 @@ async function load() {
       h("div", { class: "form-actions center" },
         approved ? h("a", { class: "btn btn-primary", href: `/dashboard/${kind}`, text: t("apply.go_dashboard") }) : null,
         application.status === "rejected"
-          ? h("a", { class: "btn btn-primary", href: `/become-${kind}`, text: t("appstatus.apply_again") }) : null));
+          ? h("a", { class: "btn btn-primary", href: `/${kind}/apply`, text: t("appstatus.apply_again") }) : null));
     app.replaceChildren(head, h("div", { class: "grid-2" }, h("section", { class: "card" }, block),
       h("section", { class: "card" }, details(application))));
   } catch (error) {

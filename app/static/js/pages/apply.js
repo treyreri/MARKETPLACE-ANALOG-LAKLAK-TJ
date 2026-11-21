@@ -68,8 +68,11 @@ function buildForm(me, prev, categories) {
         () => api(`/${kind}/applications`, { method: "POST", body: values }));
       window.location.href = `/application/${kind}`;
     } catch (error) {
-      if (error.status === 409) window.location.href = `/application/${kind}`;
-      else showApiError(form, error);
+      showApiError(form, error);  // e.g. 409 "already pending" / "already a seller"
+      if (error.status === 409) {
+        form.querySelector(".form-error").append(" ",
+          h("a", { href: `/application/${kind}`, text: t("account.view_status") }));
+      }
     }
   });
   return form;

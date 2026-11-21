@@ -79,3 +79,6 @@ app_page("/application/courier", "application.js", "application", kind="courier"
 app_page("/seller/login", "role_login.js", "role-login", kind="seller")
 app_page("/courier/login", "role_login.js", "role-login", kind="courier")
 app_page("/dashboard/seller", "seller.js", "seller-dashboard")
+app_page("/seller/apply", "apply.js", "apply", kind="seller")
+app_page("/courier/apply", "apply.js", "apply", kind="courier")
+app_page("/dashboard/courier", "dashboard_stub.js", "courier-dashboard", kind="courier")

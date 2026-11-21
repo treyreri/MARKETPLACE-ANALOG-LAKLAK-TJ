@@ -16,7 +16,7 @@ function guestCard() {
     h("p", { text: t("rolelogin.text") }),
     h("div", { class: "form-actions center" },
       h("a", { class: "btn btn-primary", href: `/login?next=${encodeURIComponent(here)}`, text: t("auth.login") }),
-      h("a", { class: "btn btn-secondary", href: `/register?next=${encodeURIComponent(`/become-${kind}`)}`, text: t("auth.register") })));
+      h("a", { class: "btn btn-secondary", href: `/register?next=${encodeURIComponent(`/${kind}/apply`)}`, text: t("auth.register") })));
   return h("div", { class: "auth-card" }, block);
 }
 
@@ -37,7 +37,7 @@ async function route() {
       window.location.replace(`/application/${kind}`);
     } catch (error) {
       if (error.status !== 404) throw error;
-      window.location.replace(`/become-${kind}`);
+      window.location.replace(`/${kind}/apply`);
     }
   } catch (error) {
     app.replaceChildren(message(error.message));

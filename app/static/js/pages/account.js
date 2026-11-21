@@ -57,7 +57,7 @@ function roleSection(kind, me, application) {
   }
   return h("div", { class: "row-between" },
     h("span", { text: title }),
-    h("a", { class: "btn btn-ghost btn-sm", href: `/become-${kind}`, text: t(`footer.become_${kind}`) }));
+    h("a", { class: "btn btn-ghost btn-sm", href: `/${kind}/apply`, text: t(`footer.become_${kind}`) }));
 }
 
 async function load() {
