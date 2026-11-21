@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-from app.schemas.user import Token, UserLogin, UserRead, UserRegister
+from app.schemas.user import Token, UserLogin, UserRead, UserRegister, UserUpdate
 from app.services import auth_service
 from app.utils.security import create_access_token
 
@@ -37,3 +37,11 @@ def login(data: UserLogin, db: DbSession):
 @router.get("/me", response_model=UserRead)
 def read_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
+
+@router.patch("/me", response_model=UserRead)
+def update_me(
+    data: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: DbSession, ):
+    return auth_service.update_profile(db, current_user, data)

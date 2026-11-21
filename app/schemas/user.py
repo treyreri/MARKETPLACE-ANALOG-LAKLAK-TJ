@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from app.utils.enums import RoleName
 
 PhoneNumber = Annotated [ str, Field(pattern=r"^\+\d{10,15}$", examples=["+992900000000"]) ]
@@ -18,6 +18,17 @@ class UserRegister(BaseModel):
         if self.password != self.password_confirm:
             raise ValueError("passwords do not match")
         return self
+
+class UserUpdate(BaseModel):
+    """Profile fields a user may change after registration (spec section 9)."""
+    first_name: str | None = Field(default=None, max_length=50)
+    last_name: str | None = Field(default=None, max_length=50)
+
+    @field_validator("first_name", "last_name")
+    @classmethod
+    def blank_to_none(cls, value: str | None) -> str | None:
+        return (value.strip() or None) if value is not None else None
+
 
 class UserLogin(BaseModel):
     phone_number: str

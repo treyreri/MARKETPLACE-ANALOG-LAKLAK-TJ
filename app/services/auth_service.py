@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.user import UserRegister
+from app.schemas.user import UserRegister, UserUpdate
 from app.utils.security import burn_password_check, hash_password, verify_password
 
 class PhoneAlreadyRegisteredError(Exception):
@@ -37,4 +37,11 @@ def authenticate_user(db: Session, phone_number: str, password: str) -> User | N
         return None
     if not verify_password(password, user.password_hash):
         return None
+    return user
+
+def update_profile(db: Session, user: User, data: UserUpdate) -> User:
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(user, field, value)
+    db.commit()
+    db.refresh(user)
     return user
