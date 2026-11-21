@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container section">
+  <div class="auth-card">
+    <span class="auth-mark" data-unicorn="logo"></span>
+    <h1 class="h2" data-i18n="auth.login_title">Log in</h1>
+    <form class="form" data-auth-form="login" novalidate>
+      <div class="form-error" role="alert" hidden></div>
+      <label class="field">
+        <span data-i18n="form.phone">Phone number</span>
+        <input class="input" name="phone_number" type="tel" inputmode="tel" autocomplete="tel"
+               placeholder="+992XXXXXXXXX" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="form.password">Password</span>
+        <input class="input" name="password" type="password" autocomplete="current-password" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit" data-i18n="auth.login">Login</button>
+    </form>
+    <p class="auth-switch">
+      <span data-i18n="auth.no_account">No account yet?</span>
+      <a href="/register" data-keep-next data-i18n="auth.register">Register</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/auth.js"></script>
+{% endblock %}

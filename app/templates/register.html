@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container section">
+  <div class="auth-card">
+    <span class="auth-mark" data-unicorn="logo"></span>
+    <h1 class="h2" data-i18n="auth.register_title">Create an account</h1>
+    <form class="form" data-auth-form="register" novalidate>
+      <div class="form-error" role="alert" hidden></div>
+      <label class="field">
+        <span data-i18n="form.phone">Phone number</span>
+        <input class="input" name="phone_number" type="tel" inputmode="tel" autocomplete="tel"
+               placeholder="+992XXXXXXXXX" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="form.password">Password</span>
+        <input class="input" name="password" type="password" autocomplete="new-password" required>
+        <small class="field-hint" data-i18n="form.password_hint">At least 6 characters</small>
+        <small class="field-error" hidden></small>
+      </label>
+      <label class="field">
+        <span data-i18n="form.password_confirm">Confirm password</span>
+        <input class="input" name="password_confirm" type="password" autocomplete="new-password" required>
+        <small class="field-error" hidden></small>
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span data-i18n="form.first_name_optional">First name (optional)</span>
+          <input class="input" name="first_name" autocomplete="given-name" maxlength="50">
+        </label>
+        <label class="field">
+          <span data-i18n="form.last_name_optional">Last name (optional)</span>
+          <input class="input" name="last_name" autocomplete="family-name" maxlength="50">
+        </label>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" data-i18n="auth.register">Register</button>
+    </form>
+    <p class="auth-switch">
+      <span data-i18n="auth.have_account">Already have an account?</span>
+      <a href="/login" data-keep-next data-i18n="auth.login">Login</a>
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/auth.js"></script>
+{% endblock %}
