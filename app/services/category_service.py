@@ -1,12 +1,17 @@
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 from app.models.category import Category
+from app.models.product import Product
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 class CategoryNotFoundError(Exception):
     pass
 
 class CategoryNameTakenError(Exception):
+    pass
+
+
+class CategoryInUseError(Exception):
     pass
 
 def list_categories(db: Session) -> list[Category]:
@@ -62,17 +67,7 @@ def update_category(db: Session, category_id: int, data: CategoryUpdate) -> Cate
     return category
 
 
-def delete_category(db: Session, category_id: int) -> None:
-    category = get_category(db, category_id)
-    db.delete(category)
-    db.commit()
-
 #exclude_unset=True - это суть PATCH: обновляются только поля, которые клиент действительно прислал
-
-
-from app.models.product import Product
-class CategoryInUseError(Exception):
-    pass
 
 
 def delete_category(db: Session, category_id: int) -> None:

@@ -4,7 +4,8 @@ from app.dependencies.language import CurrentLanguage
 from app.dependencies.permissions import require_admin
 from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
 from app.services import category_service
-from app.services.category_service import CategoryNameTakenError, CategoryNotFoundError
+from app.services.category_service import (
+    CategoryInUseError, CategoryNameTakenError, CategoryNotFoundError, )
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
@@ -51,7 +52,6 @@ def update_category(
         raise NAME_TAKEN
 
 
-from app.services.category_service import CategoryInUseError
 @router.delete(
     "/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -59,6 +59,8 @@ from app.services.category_service import CategoryInUseError
 def delete_category(category_id: int, db: DbSession):
     try:
         category_service.delete_category(db, category_id)
+    except CategoryNotFoundError:
+        raise NOT_FOUND
     except CategoryInUseError:
         raise HTTPException(status.HTTP_409_CONFLICT, "Category contains products")
 

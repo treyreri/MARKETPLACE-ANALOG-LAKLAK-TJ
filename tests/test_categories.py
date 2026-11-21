@@ -113,6 +113,5 @@ def test_cannot_delete_category_with_products(client, db, admin_headers, product
     assert db.get(Category, category.id) is not None
 
 
-@pytest.mark.xfail(reason="#17: CategoryNotFoundError not handled on delete -> 500")
 def test_delete_missing_category(client, admin_headers):
     assert client.delete("/categories/999", headers=admin_headers).status_code == 404
