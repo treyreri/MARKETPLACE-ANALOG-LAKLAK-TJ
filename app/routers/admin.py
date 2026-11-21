@@ -71,3 +71,65 @@ def review_courier_application(
         raise APPLICATION_NOT_FOUND
     except ApplicationAlreadyReviewedError:
         raise ALREADY_REVIEWED
+
+
+
+from app.schemas.order import OrderRead, OrderStatusUpdate
+from app.services import order_service
+from app.services.order_service import InvalidStatusTransitionError, OrderNotFoundError
+from app.utils.enums import OrderStatus
+
+ORDER_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
+
+
+@router.get("/orders", response_model=list[OrderRead])
+def list_orders(db: DbSession, status: OrderStatus | None = None):
+    return order_service.list_all_orders(db, status)
+
+
+@router.get("/orders/{order_id}", response_model=OrderRead)
+def get_order(order_id: int, db: DbSession):
+    try:
+        return order_service.get_order(db, order_id)
+    except OrderNotFoundError:
+        raise ORDER_NOT_FOUND
+
+
+@router.patch("/orders/{order_id}", response_model=OrderRead)
+def update_order_status(order_id: int, data: OrderStatusUpdate, db: DbSession):
+    try:
+        return order_service.update_order_status(db, order_id, data.status)
+    except OrderNotFoundError:
+        raise ORDER_NOT_FOUND
+    except InvalidStatusTransitionError as error:
+        raise HTTPException(409, str(error))
+
+
+
+
+from app.schemas.delivery import CourierAssign, CourierInfo
+from app.services import delivery_service
+from app.services.delivery_service import (
+    CourierNotFoundError,
+    DeliveryAlreadyStartedError,
+    OrderNotAssignableError, )
+
+
+@router.get("/couriers", response_model=list[CourierInfo])
+def list_couriers(db: DbSession):
+    return [CourierInfo.from_model(c) for c in delivery_service.list_couriers(db)]
+
+
+@router.post("/orders/{order_id}/assign-courier", response_model=OrderRead)
+def assign_courier(order_id: int, data: CourierAssign, db: DbSession):
+    try:
+        return delivery_service.assign_courier(db, order_id, data.courier_id)
+    except OrderNotFoundError:
+        raise ORDER_NOT_FOUND
+    except CourierNotFoundError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Courier not found or inactive")
+    except OrderNotAssignableError:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, "Courier can only be assigned to confirmed or processing orders", )
+    except DeliveryAlreadyStartedError:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Delivery has already started")

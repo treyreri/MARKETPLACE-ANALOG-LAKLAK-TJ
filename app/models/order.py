@@ -39,5 +39,9 @@ class Order(Base):
         cascade="all, delete-orphan",
         lazy="selectin",
         order_by="OrderItem.id", )
+   
+    delivery_status: Mapped[DeliveryStatus | None] = mapped_column(Enum(DeliveryStatus), index=True)
+    assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 from sqlalchemy.orm import relationship

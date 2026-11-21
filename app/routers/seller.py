@@ -116,7 +116,7 @@ from app.services.application_service import SellerProfileNotFoundError
 STORE_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Store profile not found")
 
 
-@router.get("/store", response_model=SellerProfileRead)
+@router.get("/store", response_model = SellerProfileRead)
 def get_my_store(seller: SellerUser):
     try:
         return application_service.get_seller_profile(seller)
@@ -130,3 +130,14 @@ def update_my_store(data: SellerProfileUpdate, seller: SellerUser, db: DbSession
         return application_service.update_seller_profile(db, seller, data)
     except SellerProfileNotFoundError:
         raise STORE_NOT_FOUND
+
+
+from app.schemas.order import SellerOrderRead
+from app.services import order_service
+
+
+@router.get("/orders", response_model=list[SellerOrderRead])
+def list_my_orders(seller: SellerUser, db: DbSession):
+    return [
+        SellerOrderRead.from_items(order, items)
+        for order, items in order_service.list_seller_orders(db, seller.id) ]

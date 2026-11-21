@@ -40,3 +40,11 @@ class OrderStatus(str, enum.Enum):
 
 class PaymentMethod(str, enum.Enum):
     CASH_ON_DELIVERY = "cash_on_delivery"
+
+
+
+class DeliveryStatus(str, enum.Enum):
+    ASSIGNED = "assigned"
+    PICKED_UP = "picked_up"
+    IN_DELIVERY = "in_delivery"
+    DELIVERED = "delivered"
