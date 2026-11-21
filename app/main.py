@@ -13,3 +13,17 @@ app.include_router(auth.router)
 from app.routers import auth, categories
 app.include_router(auth.router)
 app.include_router(categories.router)
+
+
+from fastapi.staticfiles import StaticFiles
+from app.routers import auth, categories, products, seller
+
+app.include_router(auth.router)
+app.include_router(categories.router)
+app.include_router(products.router)
+app.include_router(seller.router)
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+from app.routers import admin, auth, categories, products, seller
+app.include_router(admin.router)

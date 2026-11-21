@@ -68,3 +68,18 @@ def delete_category(db: Session, category_id: int) -> None:
     db.commit()
 
 #exclude_unset=True - это суть PATCH: обновляются только поля, которые клиент действительно прислал
+
+
+from app.models.product import Product
+class CategoryInUseError(Exception):
+    pass
+
+
+def delete_category(db: Session, category_id: int) -> None:
+    category = get_category(db, category_id)
+    has_products = db.scalar(
+        select(Product.id).where(Product.category_id == category_id).limit(1) )
+    if has_products is not None:
+        raise CategoryInUseError
+    db.delete(category)
+    db.commit()

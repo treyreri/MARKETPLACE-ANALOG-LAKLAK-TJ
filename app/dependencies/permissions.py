@@ -13,5 +13,7 @@ def require_role(role: RoleName):
 require_admin = require_role(RoleName.ADMIN)
 AdminUser = Annotated[User, Depends(require_admin)]
 
+SellerUser = Annotated[User, Depends(require_role(RoleName.SELLER))]
+
 #require_role — это фабрика dependency: она возвращает функцию-проверку для конкретной роли. 
 #Позже так же сделаем require_role(RoleName.SELLER) и require_role(RoleName.COURIER)

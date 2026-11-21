@@ -26,3 +26,5 @@ def get_current_user(
     if user is None or not user.is_active:
         raise unauthorized
     return user
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
