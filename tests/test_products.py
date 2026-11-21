@@ -325,3 +325,16 @@ def test_sort_popular_by_units_sold_excluding_cancelled(client, db, make_product
     db.commit()
 
     assert names(client.get("/products", params={"sort": "popular"})) == ["A", "B", "C"]
+
+
+def test_failed_commit_removes_new_image(client, db, product, seller_headers, image_dir, monkeypatch):
+    from sqlalchemy.orm import Session
+
+    def broken_commit(self):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(Session, "commit", broken_commit)
+    files = {"file": ("p.png", png_bytes(), "image/png")}
+    with pytest.raises(RuntimeError):
+        client.post(f"/seller/products/{product.id}/image", files=files, headers=seller_headers)
+    assert not image_dir.exists() or not list(image_dir.iterdir())

@@ -158,7 +158,13 @@ def set_product_image(
     new_image = save_product_image(file)  # raises InvalidImageError
     old_image = product.image
     product.image = new_image
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        # The file is already on disk but no row points to it: remove it
+        db.rollback()
+        delete_file(new_image)
+        raise
     db.refresh(product)
     delete_file(old_image)
     return product
