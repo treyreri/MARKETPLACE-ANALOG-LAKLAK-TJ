@@ -76,7 +76,7 @@ async function load() {
         roleSection("courier", me, courierApp),
         me.roles.includes("admin")
           ? h("div", { class: "row-between" }, h("span", { text: t("role.admin") }),
-            h("a", { class: "btn btn-secondary btn-sm", href: "/dashboard/admin", text: t("nav.admin_panel") }))
+            h("a", { class: "btn btn-secondary btn-sm", href: "/admin", text: t("nav.admin_panel") }))
           : null));
 
     app.replaceChildren(
