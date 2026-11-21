@@ -76,7 +76,8 @@ def review_courier_application(
 
 from app.schemas.order import OrderRead, OrderStatusUpdate
 from app.services import order_service
-from app.services.order_service import InvalidStatusTransitionError, OrderNotFoundError
+from app.services.order_service import (
+    DeliveryManagedByCourierError, InvalidStatusTransitionError, OrderNotFoundError, )
 from app.utils.enums import OrderStatus
 
 ORDER_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
@@ -103,6 +104,8 @@ def update_order_status(order_id: int, data: OrderStatusUpdate, db: DbSession):
         raise ORDER_NOT_FOUND
     except InvalidStatusTransitionError as error:
         raise HTTPException(409, str(error))
+    except DeliveryManagedByCourierError:
+        raise HTTPException(409, "Delivery is managed by the assigned courier")
 
 
 

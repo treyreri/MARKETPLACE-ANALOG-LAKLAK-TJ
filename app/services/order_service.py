@@ -90,6 +90,14 @@ class OrderNotCancellableError(Exception):
     pass
 
 
+class DeliveryManagedByCourierError(Exception):
+    pass
+
+
+# Once a courier is assigned, only the courier moves the order to these statuses
+COURIER_MANAGED_STATUSES = {OrderStatus.SHIPPED, OrderStatus.DELIVERED}
+
+
 ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.PENDING: {OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
     OrderStatus.CONFIRMED: {OrderStatus.PROCESSING, OrderStatus.CANCELLED},
@@ -108,7 +116,8 @@ def _restock(db: Session, order: Order) -> None:
                 .values(quantity=Product.quantity + item.quantity) )
 
 
-def apply_status_change(db: Session, order: Order, new_status: OrderStatus) -> None:
+def apply_status_change(
+    db: Session, order: Order, new_status: OrderStatus, *, by_courier: bool = False ) -> None:
     """Validate and apply a status transition without committing.
 
     Callers (e.g. delivery_service) combine it with other changes
@@ -116,6 +125,8 @@ def apply_status_change(db: Session, order: Order, new_status: OrderStatus) -> N
     """
     if new_status not in ALLOWED_TRANSITIONS[order.status]:
         raise InvalidStatusTransitionError(order.status, new_status)
+    if order.courier_id is not None and new_status in COURIER_MANAGED_STATUSES and not by_courier:
+        raise DeliveryManagedByCourierError
     if new_status == OrderStatus.CANCELLED:
         _restock(db, order)
     order.status = new_status

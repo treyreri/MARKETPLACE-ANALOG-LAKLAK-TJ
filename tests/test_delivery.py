@@ -156,7 +156,6 @@ def test_admin_cannot_cancel_after_pickup(client, admin_headers, courier_headers
     assert set_status(client, admin_headers, assigned, "cancelled").status_code == 409
 
 
-@pytest.mark.xfail(reason="#13: admin can set shipped/delivered manually while a courier is assigned")
 @pytest.mark.parametrize("done,target", [([], "shipped"), (["picked_up"], "delivered")])
 def test_admin_cannot_set_courier_managed_status(client, admin_headers, courier_headers, assigned, done, target):
     for status in done:

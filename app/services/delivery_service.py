@@ -106,8 +106,7 @@ def update_delivery_status(
         order.delivery_status = new_status
         if new_status in ORDER_STATUS_FOR_DELIVERY:
             order_service.apply_status_change(
-                db, order, ORDER_STATUS_FOR_DELIVERY[new_status]
-            )
+                db, order, ORDER_STATUS_FOR_DELIVERY[new_status], by_courier=True )
         if new_status == DeliveryStatus.DELIVERED:
             order.delivered_at = datetime.now(timezone.utc)
         db.commit()
