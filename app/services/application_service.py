@@ -1,14 +1,16 @@
 from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from app.models.courier_application import CourierApplication
+from app.models.courier_profile import CourierProfile
 from app.models.seller_application import SellerApplication
 from app.models.seller_profile import SellerProfile
 from app.models.user import User, UserRole
 from app.schemas.application import ApplicationReview
+from app.schemas.courier import CourierApplicationCreate, CourierProfileUpdate
 from app.schemas.seller import SellerApplicationCreate, SellerProfileUpdate
 from app.services import category_service
 from app.utils.enums import ApplicationStatus, RoleName
-from app.schemas.courier import CourierProfile, CourierApplication ,CourierApplicationCreate, CourierApplicationRead, CourierProfileRead, CourierProfileUpdate
 
 class ApplicationNotFoundError(Exception):
     pass
