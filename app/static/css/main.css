@@ -449,6 +449,12 @@ select.input { appearance: none; padding-right: 36px; background-image: linear-g
   .category-row { grid-template-columns: 1fr; }
 }
 
+.delivery-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.delivery-address { font-weight: 700; }
+.collect { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 1.05rem; }
+.delivery-card .row .btn-primary { flex: 1; }
+@media (max-width: 520px) { .delivery-grid { grid-template-columns: 1fr; } }
+
 /* pixel unicorn */
 .unicorn { display: inline-flex; line-height: 0; }
 .unicorn svg { width: 100%; height: 100%; image-rendering: pixelated; }
