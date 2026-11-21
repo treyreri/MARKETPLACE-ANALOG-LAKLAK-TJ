@@ -27,3 +27,16 @@ class TransportType(str, enum.Enum):
     BICYCLE = "bicycle"
     MOTORCYCLE = "motorcycle"
     CAR = "car"
+
+
+class OrderStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    PROCESSING = "processing"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+
+
+class PaymentMethod(str, enum.Enum):
+    CASH_ON_DELIVERY = "cash_on_delivery"

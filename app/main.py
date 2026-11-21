@@ -30,3 +30,7 @@ app.include_router(admin.router)
 
 from app.routers import admin, auth, categories, courier, products, seller
 app.include_router(courier.router)
+
+
+from app.routers import admin, auth, cart, categories, courier, products, seller
+app.include_router(cart.router)
