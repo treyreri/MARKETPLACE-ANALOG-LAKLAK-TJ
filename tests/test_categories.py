@@ -100,10 +100,11 @@ def test_update_category_clear_description(client, db, admin_headers):
 
 
 def test_delete_empty_category(client, db, admin_headers, category):
-    response = client.delete(f"/categories/{category.id}", headers=admin_headers)
+    category_id = category.id
+    response = client.delete(f"/categories/{category_id}", headers=admin_headers)
     assert response.status_code == 204
     db.expire_all()
-    assert db.get(Category, category.id) is None
+    assert db.get(Category, category_id) is None
 
 
 def test_cannot_delete_category_with_products(client, db, admin_headers, product, category):
