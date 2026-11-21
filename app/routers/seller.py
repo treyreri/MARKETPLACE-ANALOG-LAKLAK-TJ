@@ -110,7 +110,7 @@ def get_my_application(user: CurrentUser, db: DbSession):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No application found")
 
 
-    from app.schemas.seller import SellerProfileRead, SellerProfileUpdate
+from app.schemas.seller import SellerProfileRead, SellerProfileUpdate
 from app.services.application_service import SellerProfileNotFoundError
 
 STORE_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Store profile not found")
