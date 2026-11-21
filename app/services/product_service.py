@@ -22,7 +22,11 @@ SORT_ORDER = {
 
 #public
 def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product], int]:
-    stmt = ( select(Product). join(Product.category). where(Product.is_active.is_(True)) )
+    stmt = (
+        select(Product)
+        .join(Product.category)
+        .join(Product.seller)
+        .where(Product.is_active.is_(True), User.is_active.is_(True)) )
 
     query = (filters.q or "").strip().lower()
     if query:
@@ -42,7 +46,7 @@ def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product]
     total = db.scalar(select(func.count()).select_from(stmt.subquery()))
 
     stmt = (
-        stmt.options(contains_eager(Product.category), joinedload(Product.seller))
+        stmt.options(contains_eager(Product.category), contains_eager(Product.seller))
         .order_by(SORT_ORDER[filters.sort], Product.id.desc())
         .limit(filters.limit)
         .offset(filters.offset) )
@@ -51,7 +55,7 @@ def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product]
 
 def get_public_product(db: Session, product_id: int) -> Product:
     product = db.get(Product, product_id)
-    if product is None or not product.is_active:
+    if product is None or not product.is_available:
         raise ProductNotFoundError
     return product
 

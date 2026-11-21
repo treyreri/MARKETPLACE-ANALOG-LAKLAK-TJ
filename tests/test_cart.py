@@ -150,3 +150,14 @@ def test_get_or_create_cart_race(db, session_factory, customer):
     cart = cart_service.get_or_create_cart(db, customer.id)
     db.scalar = original_scalar
     assert cart.id == db.scalar(select(Cart.id).where(Cart.user_id == customer.id))
+
+
+def test_blocked_seller_product_not_purchasable(client, db, customer_headers, product, seller):
+    add(client, customer_headers, product)
+    seller.is_active = False
+    db.commit()
+    body = client.get("/cart", headers=customer_headers).json()
+    assert body["items"][0]["is_valid"] is False
+    assert add(client, customer_headers, product).status_code == 404
+    order = {"recipient_name": "A", "phone_number": "+992900000001", "address": "x"}
+    assert client.post("/orders", json=order, headers=customer_headers).status_code == 400

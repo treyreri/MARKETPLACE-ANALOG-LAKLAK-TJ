@@ -17,6 +17,11 @@ class Product(Base):
     def image_url(self) -> str | None:
         return f"/{self.image}" if self.image else None
 
+    @property
+    def is_available(self) -> bool:
+        """Visible and purchasable: not hidden and the seller is not blocked."""
+        return self.is_active and self.seller.is_active
+
     __tablename__ = "products"
     __table_args__ = (
         CheckConstraint("price >= 0", name="price_non_negative"),

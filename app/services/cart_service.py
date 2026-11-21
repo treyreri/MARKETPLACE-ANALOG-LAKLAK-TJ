@@ -42,7 +42,7 @@ def get_or_create_cart(db: Session, user_id: int) -> Cart:
 
 def _get_purchasable_product(db: Session, product_id: int, user_id: int) -> Product:
     product = db.get(Product, product_id)
-    if product is None or not product.is_active:
+    if product is None or not product.is_available:
         raise ProductUnavailableError
     if product.seller_id == user_id:
         raise OwnProductError
@@ -85,7 +85,7 @@ def add_item(db: Session, user_id: int, data: CartItemAdd) -> Cart:
 def update_item(db: Session, user_id: int, item_id: int, data: CartItemUpdate) -> Cart:
     cart = get_or_create_cart(db, user_id)
     item = _find_item(cart, item_id)
-    if not item.product.is_active:
+    if not item.product.is_available:
         raise ProductUnavailableError
     _ensure_in_stock(item.product, data.quantity)
     item.quantity = data.quantity

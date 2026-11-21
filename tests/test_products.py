@@ -139,7 +139,6 @@ def test_product_detail_missing(client):
     assert client.get("/products/999").status_code == 404
 
 
-@pytest.mark.xfail(reason="#18: products of blocked sellers are visible in the catalog")
 def test_blocked_seller_products_hidden(client, db, product, seller):
     seller.is_active = False
     db.commit()

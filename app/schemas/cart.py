@@ -42,7 +42,7 @@ class CartItemRead(BaseModel):
                 price=product.price,
                 image_url=product.image_url,
                 available_quantity=product.quantity,
-                is_active=product.is_active, ), )
+                is_active=product.is_available, ), )
 
 
 class CartRead(BaseModel):

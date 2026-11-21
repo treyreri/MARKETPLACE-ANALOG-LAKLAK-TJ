@@ -60,4 +60,4 @@ class CartItem(Base):
 
     @property
     def is_valid(self) -> bool:
-        return self.product.is_active and self.quantity <= self.product.quantity
+        return self.product.is_available and self.quantity <= self.product.quantity

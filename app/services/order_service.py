@@ -42,7 +42,7 @@ def create_order(db: Session, user: User, data: OrderCreate) -> Order:
     try:
         for cart_item in cart.items:
             product = cart_item.product
-            if not product.is_active or product.seller_id == user.id:
+            if not product.is_available or product.seller_id == user.id:
                 raise ProductUnavailableError(product.name)
 
             # Атомарно: проверка остатка и списание одной операцией
