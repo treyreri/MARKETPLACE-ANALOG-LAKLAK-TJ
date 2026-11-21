@@ -197,7 +197,6 @@ def test_update_product_unknown_category(client, product, seller_headers):
     assert response.status_code == 400
 
 
-@pytest.mark.xfail(reason="#12: exclude_none ignores explicit null, brand cannot be cleared")
 def test_update_product_clear_optional_field(client, db, product, seller_headers):
     product.brand = "Sony"
     db.commit()
@@ -206,7 +205,6 @@ def test_update_product_clear_optional_field(client, db, product, seller_headers
     assert product.brand is None
 
 
-@pytest.mark.xfail(reason="#12: explicit null for a required field is silently ignored instead of 422")
 def test_update_product_null_required_field(client, product, seller_headers):
     response = client.patch(
         f"/seller/products/{product.id}", json={"name": None}, headers=seller_headers)

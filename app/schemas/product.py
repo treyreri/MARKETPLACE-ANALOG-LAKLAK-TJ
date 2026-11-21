@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Annotated
 from pydantic import BaseModel, Field, model_validator
 from app.models.product import Product
+from app.schemas.common import not_nullable
 from app.utils.enums import Language, ProductSort
 
 Price = Annotated[Decimal, Field(ge=0, max_digits=10, decimal_places=2)]
@@ -23,6 +24,8 @@ class ProductUpdate(BaseModel):
     price: Price | None = None
     quantity: int | None = Field(default=None, ge=0)
     category_id: int | None = None
+
+    _not_null = not_nullable("name", "price", "quantity", "category_id")
 
 
 class ProductFilters(BaseModel):

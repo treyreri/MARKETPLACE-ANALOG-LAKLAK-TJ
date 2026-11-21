@@ -51,8 +51,8 @@ def create_category(db: Session, data: CategoryCreate) -> Category:
 
 def update_category(db: Session, category_id: int, data: CategoryUpdate) -> Category:
     category = get_category(db, category_id)
-    # exclude_none: явный null для name_ru/name_en просто игнорируется
-    updates = data.model_dump(exclude_unset=True, exclude_none=True)
+    # null for name_ru/name_en is rejected by the schema; description may be cleared
+    updates = data.model_dump(exclude_unset=True)
     _ensure_names_unique(
         db, updates.get("name_ru"), updates.get("name_en"), exclude_id=category_id )
     for field, value in updates.items():

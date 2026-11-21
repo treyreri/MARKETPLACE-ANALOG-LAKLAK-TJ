@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from app.models.category import Category
+from app.schemas.common import not_nullable
 from app.utils.enums import Language
 
 
@@ -13,6 +14,8 @@ class CategoryUpdate(BaseModel):
     name_ru: str | None = Field(default=None, min_length=1, max_length=100)
     name_en: str | None = Field(default=None, min_length=1, max_length=100)
     description: str | None = None
+
+    _not_null = not_nullable("name_ru", "name_en")
 
 
 class CategoryRead(BaseModel):

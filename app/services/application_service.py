@@ -150,7 +150,7 @@ def get_seller_profile(user: User) -> SellerProfile:
 def update_seller_profile(
     db: Session, user: User, data: SellerProfileUpdate ) -> SellerProfile:
     profile = get_seller_profile(user)
-    _update_fields(profile, data.model_dump(exclude_unset=True, exclude_none=True))
+    _update_fields(profile, data.model_dump(exclude_unset=True))
     db.commit()
     db.refresh(profile)
     return profile
@@ -213,7 +213,7 @@ def get_courier_profile(user: User) -> CourierProfile:
 def update_courier_profile(
     db: Session, user: User, data: CourierProfileUpdate ) -> CourierProfile:
     profile = get_courier_profile(user)
-    _update_fields(profile, data.model_dump(exclude_unset=True, exclude_none=True))
+    _update_fields(profile, data.model_dump(exclude_unset=True))
     db.commit()
     db.refresh(profile)
     return profile

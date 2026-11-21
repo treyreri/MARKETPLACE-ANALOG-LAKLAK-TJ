@@ -89,7 +89,6 @@ def test_update_missing_category(client, admin_headers):
     assert response.status_code == 404
 
 
-@pytest.mark.xfail(reason="#12: exclude_none ignores explicit null, description cannot be cleared")
 def test_update_category_clear_description(client, db, admin_headers):
     category = Category(name_ru="Книги", name_en="Books", description="old")
     db.add(category)

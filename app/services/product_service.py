@@ -97,7 +97,7 @@ def create_product(db: Session, seller: User, data: ProductCreate) -> Product:
 def update_product(
     db: Session, seller_id: int, product_id: int, data: ProductUpdate ) -> Product:
     product = get_seller_product(db, seller_id, product_id)
-    updates = data.model_dump(exclude_unset=True, exclude_none=True)
+    updates = data.model_dump(exclude_unset=True)
     if "category_id" in updates:
         category_service.get_category(db, updates["category_id"])
     for field, value in updates.items():

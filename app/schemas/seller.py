@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.common import not_nullable
 from app.schemas.user import PhoneNumber
 from app.utils.enums import ApplicationStatus
 from app.schemas.application import ApplicationCreateBase, ApplicationReadBase
@@ -31,3 +32,5 @@ class SellerProfileUpdate(BaseModel):
     store_description: str | None = None
     address: str | None = Field(default=None, min_length=1, max_length=255)
     phone_number: PhoneNumber | None = None
+
+    _not_null = not_nullable("store_name", "address", "phone_number")

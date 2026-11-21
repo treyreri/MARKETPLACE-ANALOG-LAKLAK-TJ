@@ -1,6 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.application import ApplicationCreateBase, ApplicationReadBase
+from app.schemas.common import not_nullable
 from app.schemas.user import PhoneNumber
 from app.utils.enums import TransportType
 
@@ -25,5 +26,7 @@ class CourierProfileRead(BaseModel):
 
 class CourierProfileUpdate(BaseModel):
     phone_number: PhoneNumber | None = None
-    address: str | None = None
+    address: str | None = Field(default=None, min_length=1, max_length=255)
     transport_type: TransportType | None = None
+
+    _not_null = not_nullable("phone_number", "address", "transport_type")
