@@ -84,9 +84,8 @@ def client(session_factory):
 @pytest.fixture(autouse=True)
 def image_dir(tmp_path, monkeypatch):
     """Keep uploaded files out of the project's uploads/ folder."""
-    path = tmp_path / "products"
-    monkeypatch.setattr(files, "PRODUCT_IMAGE_DIR", path)
-    return path
+    monkeypatch.setattr(files, "UPLOAD_ROOT", tmp_path)
+    return tmp_path / files.PRODUCT_IMAGE_SUBDIR
 
 
 # factories

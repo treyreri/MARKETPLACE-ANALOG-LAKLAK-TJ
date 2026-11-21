@@ -23,7 +23,9 @@ app.include_router(categories.router)
 app.include_router(products.router)
 app.include_router(seller.router)
 
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+from app.utils.files import UPLOAD_ROOT
+UPLOAD_ROOT.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
 
 from app.routers import admin, auth, categories, products, seller
 app.include_router(admin.router)

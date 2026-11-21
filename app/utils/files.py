@@ -4,7 +4,12 @@ from pathlib import Path
 from fastapi import UploadFile
 from PIL import Image, UnidentifiedImageError
 
-PRODUCT_IMAGE_DIR = Path("uploads") / "products"
+BASE_DIR = Path(__file__).resolve().parents[2]
+# Files live under UPLOAD_ROOT; the DB stores a path relative to the site root,
+# e.g. "uploads/products/<uuid>.png", which is also the public URL path.
+UPLOAD_ROOT = BASE_DIR / "uploads"
+UPLOAD_URL_PREFIX = "uploads"
+PRODUCT_IMAGE_SUBDIR = "products"
 # Pillow format name -> file extension. The client's content_type is ignored:
 # it is just a header and can be anything.
 ALLOWED_IMAGE_FORMATS = {
@@ -36,15 +41,18 @@ def save_product_image(file: UploadFile) -> str:
         raise InvalidImageError("Image must be smaller than 5 MB")
 
     extension = ALLOWED_IMAGE_FORMATS[_detect_image_format(content)]
-    PRODUCT_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
-    path = PRODUCT_IMAGE_DIR / f"{uuid.uuid4().hex}{extension}"
-    path.write_bytes(content)
-    return path.as_posix()
+    directory = UPLOAD_ROOT / PRODUCT_IMAGE_SUBDIR
+    directory.mkdir(parents=True, exist_ok=True)
+    name = f"{uuid.uuid4().hex}{extension}"
+    (directory / name).write_bytes(content)
+    return f"{UPLOAD_URL_PREFIX}/{PRODUCT_IMAGE_SUBDIR}/{name}"
 
 
 def delete_file(path: str | None) -> None:
-    if path:
-        Path(path).unlink(missing_ok=True)
+    if not path:
+        return
+    relative = Path(path).relative_to(UPLOAD_URL_PREFIX)
+    (UPLOAD_ROOT / relative).unlink(missing_ok=True)
 
 
 # The client's filename is never used, only a UUID, which protects against
