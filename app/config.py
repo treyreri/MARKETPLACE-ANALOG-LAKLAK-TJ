@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Pixel Unicorn"
+    app_name: str = "Treyreri Unicorn Store"
     database_url: str = "sqlite:///./pixel_unicorn.db"
     # Required, no default: a guessable key lets anyone forge JWTs.
     # Generate one with: python -c "import secrets; print(secrets.token_hex(32))"

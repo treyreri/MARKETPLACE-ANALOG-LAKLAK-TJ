@@ -57,7 +57,7 @@ function rectsFor(grid, offset) {
 /**
  * @param {{ frame?: number, radius?: number, sparkles?: boolean, title?: string }} options
  */
-export function unicornSVG({ frame = 20, radius = 3, sparkles = false, title = "Pixel Unicorn" } = {}) {
+export function unicornSVG({ frame = 20, radius = 3, sparkles = false, title = "Treyreri Unicorn Store" } = {}) {
   const offset = (frame - 16) / 2;
   const sparkleRects = sparkles
     ? SPARKLES.map(([x, y, c]) => `<rect class="sparkle" x="${x}" y="${y}" width="1" height="1" fill="${COLORS[c]}"/>`).join("")

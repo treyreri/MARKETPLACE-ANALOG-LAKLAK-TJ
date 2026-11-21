@@ -31,7 +31,7 @@ function setupQuantity(maxQuantity) {
 }
 
 function render(product) {
-  document.title = `${product.name} — Pixel Unicorn`;
+  document.title = `${product.name} — Treyreri Unicorn Store`;
   field("category-link").textContent = product.category.name;
   field("category-link").href = `/catalog?category_id=${product.category.id}`;
   field("category").textContent = product.category.name;

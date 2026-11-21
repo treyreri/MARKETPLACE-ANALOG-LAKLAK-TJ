@@ -1,4 +1,4 @@
-# Pixel Unicorn Marketplace
+# Treyreri Unicorn Store
 
 Educational marketplace: customers, sellers, couriers and admins.
 FastAPI + SQLAlchemy 2.0 + Pydantic v2 + Alembic + SQLite; Jinja2 + vanilla JS frontend.
