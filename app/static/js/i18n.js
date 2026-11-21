@@ -1,4 +1,5 @@
 // ru/en dictionaries and helpers (spec section 3).
+import { EXTRA } from "./locales.js";
 const STORAGE_KEY = "pu_lang";
 export const LANGUAGES = ["ru", "en"];
 
@@ -205,6 +206,9 @@ const DICT = {
   },
 };
 
+Object.assign(DICT.ru, EXTRA.ru);
+Object.assign(DICT.en, EXTRA.en);
+
 // Known API error messages (English in the backend) -> Russian
 const API_ERRORS_RU = {
   "could not validate credentials": "Требуется вход в аккаунт",
@@ -217,11 +221,28 @@ const API_ERRORS_RU = {
   "Cart is empty": "Корзина пуста",
   "Cart item not found": "Позиция корзины не найдена",
   "Only pending orders can be cancelled": "Отменить можно только заказ в статусе «Ожидает»",
+  "You are already a seller": "Вы уже продавец",
+  "You are already a courier": "Вы уже курьер",
+  "You already have a pending application": "У вас уже есть заявка на рассмотрении",
+  "Application already reviewed": "Заявка уже рассмотрена",
+  "Category does not exist": "Категория не найдена",
+  "Category name already exists": "Категория с таким названием уже есть",
+  "Category contains products": "В категории есть товары — её нельзя удалить",
+  "Courier not found or inactive": "Курьер не найден или заблокирован",
+  "Courier can only be assigned to confirmed or processing orders": "Курьера можно назначить только на подтверждённый заказ или заказ в обработке",
+  "Delivery has already started": "Доставка уже началась",
+  "Delivery is managed by the assigned courier": "Статусом доставки управляет назначенный курьер",
+  "You cannot block yourself": "Нельзя заблокировать самого себя",
+  "Image must be smaller than 5 MB": "Изображение должно быть меньше 5 МБ",
+  "File is not a valid JPEG, PNG or WEBP image": "Файл не является изображением JPEG, PNG или WEBP",
+  "Only JPEG, PNG and WEBP images are allowed": "Разрешены только JPEG, PNG и WEBP",
 };
 const API_ERROR_PATTERNS_RU = [
   [/^Only (\d+) items available$/, (m) => `Доступно только ${m[1]} шт.`],
   [/^Not enough stock for '(.+)'$/, (m) => `Недостаточно товара «${m[1]}» на складе`],
   [/^Product '(.+)' is no longer available$/, (m) => `Товар «${m[1]}» больше недоступен`],
+  [/^Cannot change status from '(.+)' to '(.+)'$/, (m) => `Нельзя сменить статус «${DICT.ru[`order.status.${m[1]}`] ?? m[1]}» на «${DICT.ru[`order.status.${m[2]}`] ?? m[2]}»`],
+  [/^Cannot change delivery status from '(.+)' to '(.+)'$/, (m) => `Нельзя сменить статус доставки «${m[1]}» на «${m[2]}»`],
 ];
 
 export function getLang() {
@@ -247,8 +268,10 @@ export function setLang(lang) {
   document.documentElement.lang = lang;
 }
 
-export function t(key) {
-  return DICT[getLang()][key] ?? DICT.en[key] ?? key;
+/** t("seller.delete_confirm", { name }) replaces {name} placeholders. */
+export function t(key, params) {
+  const text = DICT[getLang()][key] ?? DICT.en[key] ?? key;
+  return params ? text.replace(/\{(\w+)\}/g, (_, name) => String(params[name] ?? "")) : text;
 }
 
 export function translateApiError(message) {

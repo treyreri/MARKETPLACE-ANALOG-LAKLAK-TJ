@@ -27,13 +27,30 @@ export async function refreshCartCount() {
   }
 }
 
+let mePromise = null;
+
+/** Cached GET /auth/me for the current page; null for guests. */
+export function currentUser({ refresh = false } = {}) {
+  if (!isAuthenticated()) return Promise.resolve(null);
+  if (!mePromise || refresh) {
+    mePromise = api("/auth/me").catch((error) => { mePromise = null; throw error; });
+  }
+  return mePromise;
+}
+
+export function displayName(user) {
+  return [user.first_name, user.last_name].filter(Boolean).join(" ") || user.phone_number;
+}
+
 async function renderUser() {
   document.body.classList.toggle("is-authenticated", isAuthenticated());
   if (!isAuthenticated()) return;
   try {
-    const me = await api("/auth/me");
-    const name = [me.first_name, me.last_name].filter(Boolean).join(" ");
-    document.querySelector(".user-name").textContent = name || me.phone_number;
+    const me = await currentUser({ refresh: true });
+    document.querySelector(".user-name").textContent = displayName(me);
+    document.querySelectorAll("[data-requires-role]").forEach((link) => {
+      link.hidden = !me.roles.includes(link.dataset.requiresRole);
+    });
   } catch {
     // 401 already logged out via api(); anything else: keep the header usable
   }

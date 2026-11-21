@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{# Generic shell for JS-rendered pages: the module in static/js/pages renders into #app #}
+{% block content %}
+<section class="container section" id="app" data-kind="{{ kind or '' }}" aria-live="polite"></section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/pages/{{ script }}"></script>
+{% endblock %}

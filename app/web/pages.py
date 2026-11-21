@@ -49,6 +49,13 @@ def catalog(request: Request):
     return render(request, "catalog.html", "catalog")
 
 
+def app_page(path: str, script: str, page: str, kind: str | None = None) -> None:
+    """Register a JS-rendered page that uses the generic app.html shell."""
+    def view(request: Request):
+        return render(request, "app.html", page, script=script, kind=kind)
+    router.add_api_route(path, view, methods=["GET"], response_class=HTMLResponse)
+
+
 # Linked from the layout but not built yet: a friendly placeholder instead of 404
 COMING_SOON = [
     "/account/orders", "/about", "/contact",
