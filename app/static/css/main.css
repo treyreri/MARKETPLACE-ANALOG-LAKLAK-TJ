@@ -58,7 +58,7 @@ h3 { font-size: 1rem; }
 p { margin: 0 0 1em; }
 .muted { color: var(--text-muted); }
 .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter); }
-.section { padding: 32px 0; }
+.section { padding-block: 32px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .section-head h2 { margin: 0; }
 :focus-visible { outline: 3px solid var(--periwinkle); outline-offset: 2px; border-radius: 6px; }
