@@ -59,7 +59,7 @@ def app_page(path: str, script: str, page: str, kind: str | None = None) -> None
 # Linked from the layout but not built yet: a friendly placeholder instead of 404
 COMING_SOON = [
     "/about", "/contact",
-    "/become-seller", "/seller/login", "/become-courier", "/courier/login",
+    "/seller/login", "/courier/login",
 ]
 
 
@@ -73,3 +73,5 @@ for _path in COMING_SOON:
 
 app_page("/account/orders", "orders.js", "orders")
 app_page("/account", "account.js", "account")
+app_page("/become-seller", "apply.js", "apply", kind="seller")
+app_page("/become-courier", "apply.js", "apply", kind="courier")
