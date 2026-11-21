@@ -2,9 +2,9 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationshi
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
-from app.utils.enums import OrderStatus, PaymentMethod
+from app.utils.enums import DeliveryStatus, OrderStatus, PaymentMethod
 
 if TYPE_CHECKING:
     from app.models.order_item import OrderItem
@@ -44,4 +44,3 @@ class Order(Base):
     assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-from sqlalchemy.orm import relationship
