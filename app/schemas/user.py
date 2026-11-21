@@ -48,3 +48,14 @@ class UserRead(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str= "bearer"
+
+
+class UserList(BaseModel):
+    items: list[UserRead]
+    total: int
+    limit: int
+    offset: int
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool

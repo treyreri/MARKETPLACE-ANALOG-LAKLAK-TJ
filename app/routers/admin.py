@@ -143,3 +143,43 @@ def assign_courier(order_id: int, data: CourierAssign, db: DbSession):
             status.HTTP_409_CONFLICT, "Courier can only be assigned to confirmed or processing orders", )
     except DeliveryAlreadyStartedError:
         raise HTTPException(status.HTTP_409_CONFLICT, "Delivery has already started")
+
+
+from app.dependencies.permissions import AdminUser
+from app.schemas.user import UserList, UserRead, UserStatusUpdate
+from app.services import user_service
+from app.services.user_service import CannotBlockSelfError, UserNotFoundError
+from app.utils.enums import RoleName
+
+USER_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+
+
+@router.get("/users", response_model=UserList)
+def list_users(
+    db: DbSession,
+    q: Annotated[str | None, Query(max_length=50)] = None,
+    role: RoleName | None = None,
+    is_active: bool | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0, ):
+    items, total = user_service.list_users(db, q, role, is_active, limit, offset)
+    return UserList(
+        items=[UserRead.model_validate(u) for u in items], total=total, limit=limit, offset=offset)
+
+
+@router.get("/users/{user_id}", response_model=UserRead)
+def get_user(user_id: int, db: DbSession):
+    try:
+        return user_service.get_user(db, user_id)
+    except UserNotFoundError:
+        raise USER_NOT_FOUND
+
+
+@router.patch("/users/{user_id}", response_model=UserRead)
+def set_user_status(user_id: int, data: UserStatusUpdate, admin: AdminUser, db: DbSession):
+    try:
+        return user_service.set_active(db, admin, user_id, data.is_active)
+    except UserNotFoundError:
+        raise USER_NOT_FOUND
+    except CannotBlockSelfError:
+        raise HTTPException(status.HTTP_409_CONFLICT, "You cannot block yourself")
