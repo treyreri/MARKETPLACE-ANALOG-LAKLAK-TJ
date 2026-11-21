@@ -10,3 +10,6 @@ def health_check():
 from app.routers import auth
 app.include_router(auth.router)
 
+from app.routers import auth, categories
+app.include_router(auth.router)
+app.include_router(categories.router)
