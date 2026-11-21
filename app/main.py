@@ -9,3 +9,4 @@ def health_check():
 
 from app.routers import auth
 app.include_router(auth.router)
+
