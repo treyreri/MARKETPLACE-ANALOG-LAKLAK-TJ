@@ -141,7 +141,6 @@ def test_product_deleted_removes_cart_item(client, customer_headers, seller_head
     assert client.get("/cart", headers=customer_headers).json()["items"] == []
 
 
-@pytest.mark.xfail(reason="#11: concurrent get_or_create_cart -> IntegrityError -> 500")
 def test_get_or_create_cart_race(db, session_factory, customer):
     # Another request created the cart after this one looked it up
     with session_factory() as other:

@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.models.cart import Cart, CartItem
 from app.models.product import Product
@@ -24,11 +25,17 @@ class InsufficientStockError(Exception):
 
 
 def get_or_create_cart(db: Session, user_id: int) -> Cart:
-    cart = db.scalar(select(Cart).where(Cart.user_id == user_id))
+    stmt = select(Cart).where(Cart.user_id == user_id)
+    cart = db.scalar(stmt)
     if cart is None:
         cart = Cart(user_id=user_id)
         db.add(cart)
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError:
+            # A concurrent request created the cart first: use that one
+            db.rollback()
+            return db.execute(stmt).scalar_one()
         db.refresh(cart)
     return cart
 
