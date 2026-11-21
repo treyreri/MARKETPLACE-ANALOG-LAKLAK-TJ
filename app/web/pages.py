@@ -58,7 +58,7 @@ def app_page(path: str, script: str, page: str, kind: str | None = None) -> None
 
 # Linked from the layout but not built yet: a friendly placeholder instead of 404
 COMING_SOON = [
-    "/account/orders", "/about", "/contact",
+    "/account", "/about", "/contact",
     "/become-seller", "/seller/login", "/become-courier", "/courier/login",
 ]
 
@@ -69,3 +69,6 @@ def _coming_soon(request: Request):
 
 for _path in COMING_SOON:
     router.add_api_route(_path, _coming_soon, methods=["GET"], response_class=HTMLResponse)
+
+
+app_page("/account/orders", "orders.js", "orders")
