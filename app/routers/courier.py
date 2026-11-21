@@ -60,7 +60,7 @@ def update_my_profile(data: CourierProfileUpdate, courier: CourierUser, db: DbSe
 from app.schemas.delivery import CourierOrderRead, DeliveryStatusUpdate
 from app.services import delivery_service
 from app.services.delivery_service import InvalidDeliveryTransitionError
-from app.services.order_service import OrderNotFoundError
+from app.services.order_service import InvalidStatusTransitionError, OrderNotFoundError
 
 ORDER_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
 
@@ -86,5 +86,5 @@ def update_delivery_status(
             db, courier.id, order_id, data.status )
     except OrderNotFoundError:
         raise ORDER_NOT_FOUND
-    except InvalidDeliveryTransitionError as error:
+    except (InvalidDeliveryTransitionError, InvalidStatusTransitionError) as error:
         raise HTTPException(status.HTTP_409_CONFLICT, str(error))

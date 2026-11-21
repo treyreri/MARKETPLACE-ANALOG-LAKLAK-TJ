@@ -129,6 +129,11 @@ def apply_status_change(
         raise DeliveryManagedByCourierError
     if new_status == OrderStatus.CANCELLED:
         _restock(db, order)
+        # Only possible before pickup (shipped orders cannot be cancelled):
+        # release the courier so the order leaves their delivery list
+        order.courier_id = None
+        order.delivery_status = None
+        order.assigned_at = None
     order.status = new_status
 
 

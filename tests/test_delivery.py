@@ -163,7 +163,6 @@ def test_admin_cannot_set_courier_managed_status(client, admin_headers, courier_
     assert set_status(client, admin_headers, assigned, target).status_code == 409
 
 
-@pytest.mark.xfail(reason="#14: cancelling an assigned order leaves the courier attached")
 def test_admin_cancel_assigned_order_resets_delivery(client, db, admin_headers, courier_headers, assigned, product):
     response = set_status(client, admin_headers, assigned, "cancelled")
     assert response.status_code == 200
