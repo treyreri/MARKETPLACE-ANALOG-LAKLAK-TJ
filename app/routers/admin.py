@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.database import DbSession
 from app.dependencies.permissions import require_admin
@@ -19,8 +20,10 @@ ALREADY_REVIEWED = HTTPException(status.HTTP_409_CONFLICT, "Application already 
 
 
 @router.get("/seller-applications", response_model=list[SellerApplicationRead])
-def list_seller_applications(db: DbSession, status: ApplicationStatus | None = None):
-    return application_service.list_seller_applications(db, status)
+def list_seller_applications(
+    db: DbSession,
+    status_filter: Annotated[ApplicationStatus | None, Query(alias="status")] = None, ):
+    return application_service.list_seller_applications(db, status_filter)
 
 
 @router.get(
@@ -48,8 +51,10 @@ def review_seller_application(
 from app.schemas.courier import CourierApplicationRead
 
 @router.get("/courier-applications", response_model=list[CourierApplicationRead])
-def list_courier_applications(db: DbSession, status: ApplicationStatus | None = None):
-    return application_service.list_courier_applications(db, status)
+def list_courier_applications(
+    db: DbSession,
+    status_filter: Annotated[ApplicationStatus | None, Query(alias="status")] = None, ):
+    return application_service.list_courier_applications(db, status_filter)
 
 
 @router.get(
@@ -84,8 +89,10 @@ ORDER_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
 
 
 @router.get("/orders", response_model=list[OrderRead])
-def list_orders(db: DbSession, status: OrderStatus | None = None):
-    return order_service.list_all_orders(db, status)
+def list_orders(
+    db: DbSession,
+    status_filter: Annotated[OrderStatus | None, Query(alias="status")] = None, ):
+    return order_service.list_all_orders(db, status_filter)
 
 
 @router.get("/orders/{order_id}", response_model=OrderRead)
@@ -103,9 +110,9 @@ def update_order_status(order_id: int, data: OrderStatusUpdate, db: DbSession):
     except OrderNotFoundError:
         raise ORDER_NOT_FOUND
     except InvalidStatusTransitionError as error:
-        raise HTTPException(409, str(error))
+        raise HTTPException(status.HTTP_409_CONFLICT, str(error))
     except DeliveryManagedByCourierError:
-        raise HTTPException(409, "Delivery is managed by the assigned courier")
+        raise HTTPException(status.HTTP_409_CONFLICT, "Delivery is managed by the assigned courier")
 
 
 
