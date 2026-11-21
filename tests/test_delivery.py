@@ -172,3 +172,10 @@ def test_admin_cancel_assigned_order_resets_delivery(client, db, admin_headers, 
     assert (order.delivery_status, order.assigned_at) == (None, None)
     assert db.get(Product, product.id).quantity == 5
     assert client.get("/courier/orders", headers=courier_headers).json() == []
+
+
+def test_customer_sees_delivery_progress(client, customer_headers, courier_headers, assigned):
+    deliver(client, courier_headers, assigned, "picked_up")
+    body = client.get(f"/orders/{assigned}", headers=customer_headers).json()
+    assert (body["status"], body["delivery_status"]) == ("shipped", "picked_up")
+    assert body["delivered_at"] is None

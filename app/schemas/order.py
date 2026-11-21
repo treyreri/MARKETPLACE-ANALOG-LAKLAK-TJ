@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.schemas.user import PhoneNumber
-from app.utils.enums import OrderStatus, PaymentMethod
+from app.utils.enums import DeliveryStatus, OrderStatus, PaymentMethod
 
 
 class OrderCreate(BaseModel):
@@ -36,8 +36,10 @@ class OrderRead(BaseModel):
     payment_method: PaymentMethod
     total_price: Decimal
     courier_id: int | None
+    delivery_status: DeliveryStatus | None
     created_at: datetime
     updated_at: datetime
+    delivered_at: datetime | None
     items: list[OrderItemRead]
 
 
