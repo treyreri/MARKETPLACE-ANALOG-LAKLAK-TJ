@@ -34,9 +34,14 @@ def register(request: Request):
     return render(request, "register.html", "register")
 
 
+@router.get("/product/{product_id}", response_class=HTMLResponse)
+def product(request: Request, product_id: int):
+    return render(request, "product.html", "product", product_id=product_id)
+
+
 # Linked from the layout but not built yet: a friendly placeholder instead of 404
 COMING_SOON = [
-    "/catalog", "/product/{product_id}", "/shopping-cart",
+    "/catalog", "/shopping-cart",
     "/account/orders", "/about", "/contact",
     "/become-seller", "/seller/login", "/become-courier", "/courier/login",
 ]

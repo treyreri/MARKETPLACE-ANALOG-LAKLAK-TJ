@@ -60,6 +60,13 @@ const DICT = {
     "soon.title": "Скоро здесь что-то появится",
     "soon.text": "Эта страница ещё в разработке.",
     "soon.home": "На главную",
+    "product.brand": "Бренд",
+    "product.stock": "В наличии",
+    "product.pcs": "шт.",
+    "product.quantity": "Количество",
+    "product.buy_now": "Купить",
+    "product.description": "Описание",
+    "product.not_found": "Товар не найден или больше не продаётся",
   },
   en: {
     "a11y.skip": "Skip to content",
@@ -118,6 +125,13 @@ const DICT = {
     "soon.title": "Coming soon",
     "soon.text": "This page is still being built.",
     "soon.home": "Back to home",
+    "product.brand": "Brand",
+    "product.stock": "In stock",
+    "product.pcs": "pcs",
+    "product.quantity": "Quantity",
+    "product.buy_now": "Buy now",
+    "product.description": "Description",
+    "product.not_found": "Product not found or no longer available",
   },
 };
 
