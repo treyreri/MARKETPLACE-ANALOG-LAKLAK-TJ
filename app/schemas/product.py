@@ -47,6 +47,19 @@ class ProductFilters(BaseModel):
         return self
 
 
+class AdminProductFilters(ProductFilters):
+    """Admin listing: includes hidden products and products of blocked sellers."""
+    seller_id: int | None = None
+    is_active: bool | None = None
+
+
+class AdminProductUpdate(ProductUpdate):
+    """Admin may also hide/show a product (moderation); sellers cannot."""
+    is_active: bool | None = None
+
+    _not_null_active = not_nullable("is_active")
+
+
 class CategoryShort(BaseModel):
     id: int
     name: str

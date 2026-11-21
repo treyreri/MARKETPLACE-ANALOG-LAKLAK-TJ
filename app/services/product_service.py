@@ -6,7 +6,8 @@ from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.user import User
-from app.schemas.product import ProductCreate, ProductFilters, ProductUpdate
+from app.schemas.product import (
+    AdminProductFilters, AdminProductUpdate, ProductCreate, ProductFilters, ProductUpdate, )
 from app.services import category_service
 from app.utils.enums import OrderStatus, ProductSort
 from app.utils.files import delete_file, save_product_image
@@ -124,9 +125,7 @@ def create_product(db: Session, seller: User, data: ProductCreate) -> Product:
     return product
 
 
-def update_product(
-    db: Session, seller_id: int, product_id: int, data: ProductUpdate ) -> Product:
-    product = get_seller_product(db, seller_id, product_id)
+def _apply_update(db: Session, product: Product, data: ProductUpdate) -> Product:
     updates = data.model_dump(exclude_unset=True)
     if "category_id" in updates:
         category_service.get_category(db, updates["category_id"])
@@ -137,12 +136,20 @@ def update_product(
     return product
 
 
-def delete_product(db: Session, seller_id: int, product_id: int) -> None:
-    product = get_seller_product(db, seller_id, product_id)
+def _delete(db: Session, product: Product) -> None:
     image = product.image
     db.delete(product)
     db.commit()
     delete_file(image)
+
+
+def update_product(
+    db: Session, seller_id: int, product_id: int, data: ProductUpdate ) -> Product:
+    return _apply_update(db, get_seller_product(db, seller_id, product_id), data)
+
+
+def delete_product(db: Session, seller_id: int, product_id: int) -> None:
+    _delete(db, get_seller_product(db, seller_id, product_id))
 
 
 def set_product_image(
@@ -155,3 +162,28 @@ def set_product_image(
     db.refresh(product)
     delete_file(old_image)
     return product
+
+#admin
+def list_all_products(db: Session, filters: AdminProductFilters) -> tuple[list[Product], int]:
+    stmt = select(Product).join(Product.category).join(Product.seller)
+    stmt = _apply_filters(stmt, filters)
+    if filters.seller_id is not None:
+        stmt = stmt.where(Product.seller_id == filters.seller_id)
+    if filters.is_active is not None:
+        stmt = stmt.where(Product.is_active.is_(filters.is_active))
+    return _paginate(db, stmt, filters)
+
+
+def get_any_product(db: Session, product_id: int) -> Product:
+    product = db.get(Product, product_id)
+    if product is None:
+        raise ProductNotFoundError
+    return product
+
+
+def admin_update_product(db: Session, product_id: int, data: AdminProductUpdate) -> Product:
+    return _apply_update(db, get_any_product(db, product_id), data)
+
+
+def admin_delete_product(db: Session, product_id: int) -> None:
+    _delete(db, get_any_product(db, product_id))

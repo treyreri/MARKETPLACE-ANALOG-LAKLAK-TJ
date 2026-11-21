@@ -183,3 +183,48 @@ def set_user_status(user_id: int, data: UserStatusUpdate, admin: AdminUser, db: 
         raise USER_NOT_FOUND
     except CannotBlockSelfError:
         raise HTTPException(status.HTTP_409_CONFLICT, "You cannot block yourself")
+
+
+
+from app.dependencies.language import CurrentLanguage
+from app.schemas.product import AdminProductFilters, AdminProductUpdate, ProductList, ProductRead
+from app.services import product_service
+from app.services.category_service import CategoryNotFoundError
+from app.services.product_service import ProductNotFoundError
+
+PRODUCT_NOT_FOUND = HTTPException(status.HTTP_404_NOT_FOUND, "Product not found")
+
+
+@router.get("/products", response_model=ProductList)
+def list_products(
+    filters: Annotated[AdminProductFilters, Query()], db: DbSession, lang: CurrentLanguage):
+    items, total = product_service.list_all_products(db, filters)
+    return ProductList(
+        items=[ProductRead.from_model(p, lang) for p in items],
+        total=total, limit=filters.limit, offset=filters.offset)
+
+
+@router.get("/products/{product_id}", response_model=ProductRead)
+def get_product(product_id: int, db: DbSession, lang: CurrentLanguage):
+    try:
+        return ProductRead.from_model(product_service.get_any_product(db, product_id), lang)
+    except ProductNotFoundError:
+        raise PRODUCT_NOT_FOUND
+
+
+@router.patch("/products/{product_id}", response_model=ProductRead)
+def update_product(product_id: int, data: AdminProductUpdate, db: DbSession, lang: CurrentLanguage):
+    try:
+        return ProductRead.from_model(product_service.admin_update_product(db, product_id, data), lang)
+    except ProductNotFoundError:
+        raise PRODUCT_NOT_FOUND
+    except CategoryNotFoundError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Category does not exist")
+
+
+@router.delete("/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int, db: DbSession):
+    try:
+        product_service.admin_delete_product(db, product_id)
+    except ProductNotFoundError:
+        raise PRODUCT_NOT_FOUND
