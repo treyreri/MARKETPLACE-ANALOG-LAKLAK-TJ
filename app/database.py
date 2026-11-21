@@ -36,3 +36,17 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.orm import Session
 DbSession = Annotated[Session, Depends(get_db)]
+
+
+from sqlalchemy import event
+def _unicode_lower(value):
+    return value.lower() if isinstance(value, str) else value
+
+
+@event.listens_for(engine, "connect")
+def configure_sqlite(dbapi_connection, connection_record):
+    if settings.database_url.startswith("sqlite"):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+        dbapi_connection.create_function("lower", 1, _unicode_lower, deterministic=True)
