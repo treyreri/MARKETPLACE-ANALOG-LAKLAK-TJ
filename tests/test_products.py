@@ -1,8 +1,11 @@
+import io
 import struct
 import zlib
 from decimal import Decimal
 
 import pytest
+
+from PIL import Image
 
 from app.models import Category, Product
 from tests.conftest import auth
@@ -268,9 +271,35 @@ def test_upload_rejects_too_large(client, product, seller_headers):
     assert response.status_code == 400
 
 
-@pytest.mark.xfail(reason="#15: image validated only by client content_type")
 def test_upload_rejects_fake_image(client, product, seller_headers, image_dir):
     files = {"file": ("x.png", b"<html><script>alert(1)</script></html>", "image/png")}
+    response = client.post(f"/seller/products/{product.id}/image", files=files, headers=seller_headers)
+    assert response.status_code == 400
+    assert not image_dir.exists() or not list(image_dir.iterdir())
+
+
+def image_bytes(image_format: str) -> bytes:
+    buffer = io.BytesIO()
+    Image.new("RGB", (4, 3), (112, 201, 177)).save(buffer, format=image_format)
+    return buffer.getvalue()
+
+
+@pytest.mark.parametrize("image_format,extension", [("JPEG", ".jpg"), ("PNG", ".png"), ("WEBP", ".webp")])
+def test_upload_allowed_formats(client, product, seller_headers, image_format, extension):
+    # Wrong client content_type on purpose: the detected format decides
+    files = {"file": ("photo.bin", image_bytes(image_format), "application/octet-stream")}
+    response = client.post(f"/seller/products/{product.id}/image", files=files, headers=seller_headers)
+    assert response.status_code == 200
+    assert response.json()["image_url"].endswith(extension)
+
+
+@pytest.mark.parametrize("content", [
+    image_bytes("GIF"),          # real image, but not an allowed format
+    png_bytes()[:40],            # truncated PNG
+    png_bytes()[:8] + b"0" * 100,  # PNG signature followed by garbage
+])
+def test_upload_rejects_invalid_images(client, product, seller_headers, image_dir, content):
+    files = {"file": ("x.png", content, "image/png")}
     response = client.post(f"/seller/products/{product.id}/image", files=files, headers=seller_headers)
     assert response.status_code == 400
     assert not image_dir.exists() or not list(image_dir.iterdir())

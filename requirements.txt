@@ -6,3 +6,4 @@ pydantic-settings
 pyjwt
 pwdlib[argon2]
 python-multipart
+pillow
