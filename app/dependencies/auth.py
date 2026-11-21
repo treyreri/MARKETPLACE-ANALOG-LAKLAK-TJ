@@ -13,8 +13,8 @@ def get_current_user(
         credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)] ,
         db: Annotated[Session, Depends(get_db)] ,) -> User: 
     unauthorized = HTTPException(
-        statsu_code = status.HTTP_401_UNAUTHORIZED,
-        detail = "could not vslidste credentials" ,
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "could not validate credentials" ,
         headers= {"WWW-Authenticate" : "Bearer"} , )
     if credentials is None:
         raise unauthorized
