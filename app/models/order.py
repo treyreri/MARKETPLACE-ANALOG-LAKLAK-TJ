@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String, Text, func
+from sqlalchemy import Enum, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 from app.utils.enums import DeliveryStatus, OrderStatus, PaymentMethod
 
 if TYPE_CHECKING:
@@ -28,9 +29,9 @@ class Order(Base):
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus), default=OrderStatus.PENDING, index=True  )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() )
+        UTCDateTime(), server_default=func.now() )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now() )
+        UTCDateTime(), server_default=func.now(), onupdate=func.now() )
 
     user: Mapped["User"] = relationship(foreign_keys=[user_id])
     courier: Mapped["User | None"] = relationship(foreign_keys=[courier_id])
@@ -41,6 +42,6 @@ class Order(Base):
         order_by="OrderItem.id", )
    
     delivery_status: Mapped[DeliveryStatus | None] = mapped_column(Enum(DeliveryStatus), index=True)
-    assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    assigned_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    delivered_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
 

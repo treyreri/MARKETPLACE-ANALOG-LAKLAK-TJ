@@ -1,7 +1,8 @@
 from datetime import datetime
-from sqlalchemy import DateTime, Enum, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import Enum, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 from app.utils.enums import RoleName
 
 from typing import TYPE_CHECKING
@@ -20,7 +21,7 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(String(50))
     last_name: Mapped[str | None] = mapped_column(String(50))
     is_active: Mapped[bool] = mapped_column(default=True)
-    created_at: Mapped[datetime] = mapped_column( DateTime(timezone=True), server_default=func.now() )
+    created_at: Mapped[datetime] = mapped_column( UTCDateTime(), server_default=func.now() )
     roles: Mapped[list["UserRole"]] = relationship( back_populates="user", cascade="all, delete-orphan" , lazy="selectin" )
     
     @property
@@ -51,5 +52,5 @@ class UserRole(Base):
     id: Mapped[int] = mapped_column(primary_key = True)
     user_id: Mapped[int] = mapped_column( ForeignKey("users.id", ondelete="CASCADE"))
     role: Mapped[RoleName] = mapped_column(Enum(RoleName))
-    created_at: Mapped[datetime] = mapped_column( DateTime(timezone=True), server_default=func.now() )
+    created_at: Mapped[datetime] = mapped_column( UTCDateTime(), server_default=func.now() )
     user: Mapped["User"] = relationship(back_populates="roles")

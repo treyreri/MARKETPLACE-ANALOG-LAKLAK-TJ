@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -19,7 +20,7 @@ class SellerProfile(Base):
     address: Mapped[str] = mapped_column(String(255))
     phone_number: Mapped[str] = mapped_column(String(20))
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() )
+        UTCDateTime(), server_default=func.now() )
 
     user: Mapped["User"] = relationship(back_populates="seller_profile")
 

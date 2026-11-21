@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import Enum, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 from app.utils.enums import TransportType
 
 if TYPE_CHECKING:
@@ -19,6 +20,6 @@ class CourierProfile(Base):
     address: Mapped[str] = mapped_column(String(255))
     transport_type: Mapped[TransportType] = mapped_column(Enum(TransportType))
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()  )
+        UTCDateTime(), server_default=func.now()  )
 
     user: Mapped["User"] = relationship(back_populates="courier_profile")

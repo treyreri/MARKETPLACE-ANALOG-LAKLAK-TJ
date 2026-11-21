@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Numeric, String, Text, func
+from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 
 if TYPE_CHECKING:
     from app.models.category import Category
@@ -33,7 +34,7 @@ class Product(Base):
     image: Mapped[str | None] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() )
+        UTCDateTime(), server_default=func.now() )
 
     seller: Mapped["User"] = relationship(back_populates="products")
     category: Mapped["Category"] = relationship(back_populates="products")

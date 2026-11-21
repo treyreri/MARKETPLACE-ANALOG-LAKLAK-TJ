@@ -24,6 +24,15 @@ import app.models  # noqa: F401  — чтобы Alembic видел все мод
 config.set_main_option("sqlalchemy.url", settings.database_url)
 target_metadata = Base.metadata
 
+
+def render_item(type_, obj, autogen_context):
+    """Render custom TypeDecorators (e.g. UTCDateTime) as their plain SQLAlchemy impl,
+    so migration files do not import application code."""
+    from sqlalchemy.types import TypeDecorator
+    if type_ == "type" and isinstance(obj, TypeDecorator):
+        return f"sa.{obj.impl!r}"
+    return False
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -49,6 +58,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         render_as_batch=True,
+        render_item=render_item,
     )
 
     with context.begin_transaction():
@@ -74,6 +84,7 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             # SQLite cannot ALTER most constraints; batch mode recreates the table
             render_as_batch=True,
+            render_item=render_item,
         )
 
         with context.begin_transaction():

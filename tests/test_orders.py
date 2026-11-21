@@ -118,7 +118,6 @@ def test_order_survives_product_deletion(client, customer_headers, seller_header
     assert item["product_name"] == "Wireless Headphones"
 
 
-@pytest.mark.xfail(reason="#16: SQLite returns naive datetimes, JSON has no UTC offset")
 def test_datetimes_serialized_with_timezone(client, customer_headers, order):
     created_at = client.get(f"/orders/{order['id']}", headers=customer_headers).json()["created_at"]
     assert datetime.fromisoformat(created_at).tzinfo is not None
@@ -224,3 +223,11 @@ def test_seller_sees_only_own_order_lines(client, make_seller, make_product, cat
     assert orders[0]["total"] == "500.00"
     other_orders = client.get("/seller/orders", headers=auth(other_seller)).json()
     assert other_orders[0]["total"] == "10.00"
+
+
+def test_datetimes_are_aware_after_reload(db, client, customer_headers, admin_headers, order):
+    client.patch(f"/admin/orders/{order['id']}", json={"status": "confirmed"}, headers=admin_headers)
+    db.expire_all()
+    stored = db.get(Order, order["id"])
+    assert stored.created_at.tzinfo is not None
+    assert stored.updated_at.utcoffset().total_seconds() == 0

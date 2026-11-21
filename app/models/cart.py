@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+from app.models.types import UTCDateTime
 
 if TYPE_CHECKING:
     from app.models.product import Product
@@ -16,7 +17,7 @@ class Cart(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), unique=True  )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() )
+        UTCDateTime(), server_default=func.now() )
 
     items: Mapped[list["CartItem"]] = relationship(
         back_populates="cart",

@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
+from sqlalchemy import Enum, ForeignKey, String, Text, func
+from app.models.types import UTCDateTime
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from app.utils.enums import ApplicationStatus
 
@@ -21,8 +22,8 @@ class ApplicationMixin:
         Enum(ApplicationStatus), default=ApplicationStatus.PENDING, index=True )
     admin_comment: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() )
-    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+        UTCDateTime(), server_default=func.now() )
+    reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
 
     @declared_attr
     def user_id(cls) -> Mapped[int]:
