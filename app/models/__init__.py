@@ -2,3 +2,10 @@ from app.models.category import Category
 from app.models.user import User, UserRole
 
 __all__ = ["Category" , "User" , "UserRole"]
+
+
+from app.models.category import Category
+from app.models.product import Product
+from app.models.user import User, UserRole
+
+__all__ = ["Category", "Product", "User", "UserRole"]

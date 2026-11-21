@@ -4,6 +4,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.utils.enums import RoleName
 
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import relationship
+
+if TYPE_CHECKING:
+    from app.models.product import Product
+
+
+
 class User(Base):
     __tablename__ = "users"
     id : Mapped[int] = mapped_column(primary_key=True)
@@ -14,11 +22,19 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column( DateTime(timezone=True), server_default=func.now() )
     roles: Mapped[list["UserRole"]] = relationship( back_populates="user", cascade="all, delete-orphan" , lazy="selectin" )
+    
     @property
     def role_names(self) -> list[RoleName]:
         return [r.role for r in self.roles]
     def has_role(self, role: RoleName) -> bool:
         return role in self.role_names
+
+    products: Mapped[list["Product"]] = relationship(back_populates="seller")
+
+    @property
+    def display_name(self) -> str:
+        full_name = " ".join(filter(None, [self.first_name, self.last_name]))
+        return full_name or f"Seller #{self.id}"
 
 class UserRole(Base):
     __tablename__ = "user_roles"
