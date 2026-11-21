@@ -1,7 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="container section">
-  <h1 data-i18n="home.hero.title">Welcome to Pixel Unicorn Marketplace</h1>
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <h1 data-i18n="home.hero.title">Welcome to Pixel Unicorn Marketplace</h1>
+      <p class="hero-subtitle" data-i18n="home.hero.subtitle">Discover products for your everyday life</p>
+      <a class="btn btn-primary" href="/catalog" data-i18n="home.hero.cta">Explore Products</a>
+    </div>
+    <div class="hero-art" data-unicorn="hero"></div>
+  </div>
 </section>
+
+<section class="container section" aria-labelledby="categories-title">
+  <h2 id="categories-title" data-i18n="home.categories">Categories</h2>
+  <nav class="category-strip" data-categories aria-labelledby="categories-title"></nav>
+</section>
+
+<section class="container section" aria-labelledby="popular-title">
+  <div class="section-head">
+    <h2 id="popular-title" data-i18n="home.popular">Popular Products</h2>
+    <a href="/catalog?sort=popular" data-i18n="home.see_all">See all</a>
+  </div>
+  <div class="product-grid" data-products="popular"></div>
+</section>
+
+<section class="container section" aria-labelledby="new-title">
+  <div class="section-head">
+    <h2 id="new-title" data-i18n="home.new">New Products</h2>
+    <a href="/catalog?sort=newest" data-i18n="home.see_all">See all</a>
+  </div>
+  <div class="product-grid" data-products="newest"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/home.js"></script>
 {% endblock %}
