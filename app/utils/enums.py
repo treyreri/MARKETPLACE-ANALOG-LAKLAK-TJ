@@ -20,3 +20,10 @@ class ApplicationStatus(str, enum.Enum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class TransportType(str, enum.Enum):
+    FOOT = "foot"
+    BICYCLE = "bicycle"
+    MOTORCYCLE = "motorcycle"
+    CAR = "car"

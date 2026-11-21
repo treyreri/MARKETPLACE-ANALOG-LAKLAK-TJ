@@ -30,69 +30,96 @@ class SellerProfileNotFoundError(Exception):
     pass
 
 
-#seller application : user side
-def submit_seller_application(
-    db: Session, user: User, data: SellerApplicationCreate ) -> SellerApplication:
-    if user.has_role(RoleName.SELLER):
-        raise RoleAlreadyGrantedError
+#shared helpers (work with any application model)
+def _save(db: Session, obj):
+    db.add(obj)
+    db.commit()
+    db.refresh(obj)
+    return obj
 
+
+def _ensure_can_apply(db: Session, model, user: User, role: RoleName) -> None:
+    if user.has_role(role):
+        raise RoleAlreadyGrantedError
     pending = db.scalar(
-        select(SellerApplication.id).where(
-            SellerApplication.user_id == user.id,
-            SellerApplication.status == ApplicationStatus.PENDING, ) )
+        select(model.id).where(
+            model.user_id == user.id,
+            model.status == ApplicationStatus.PENDING, ))
     if pending is not None:
         raise ApplicationAlreadyPendingError
 
-    if data.category_id is not None:
-        category_service.get_category(db, data.category_id)
 
-    application = SellerApplication(user_id=user.id, **data.model_dump())
-    db.add(application)
-    db.commit()
-    db.refresh(application)
-    return application
-
-
-def get_latest_seller_application(db: Session, user_id: int) -> SellerApplication:
+def _get_latest(db: Session, model, user_id: int):
     application = db.scalar(
-        select(SellerApplication)
-        .where(SellerApplication.user_id == user_id)
-        .order_by(SellerApplication.created_at.desc(), SellerApplication.id.desc())
+        select(model)
+        .where(model.user_id == user_id)
+        .order_by(model.created_at.desc(), model.id.desc())
         .limit(1) )
     if application is None:
         raise ApplicationNotFoundError
     return application
 
 
-#seller application : admin side
-def list_seller_applications(
-    db: Session, status: ApplicationStatus | None = None ) -> list[SellerApplication]:
-    stmt = select(SellerApplication).order_by(SellerApplication.created_at.desc())
+def _list(db: Session, model, status: ApplicationStatus | None):
+    stmt = select(model).order_by(model.created_at.desc(), model.id.desc())
     if status is not None:
-        stmt = stmt.where(SellerApplication.status == status)
+        stmt = stmt.where(model.status == status)
     return list(db.scalars(stmt))
 
 
-def get_seller_application(db: Session, application_id: int) -> SellerApplication:
-    application = db.get(SellerApplication, application_id)
+def _get(db: Session, model, application_id: int):
+    application = db.get(model, application_id)
     if application is None:
         raise ApplicationNotFoundError
     return application
 
 
-def review_seller_application(
-    db: Session, application_id: int, data: ApplicationReview ) -> SellerApplication:
-    application = get_seller_application(db, application_id)
+def _apply_review(application, data: ApplicationReview) -> None:
     if application.status != ApplicationStatus.PENDING:
         raise ApplicationAlreadyReviewedError
-
     application.status = data.status
     application.admin_comment = data.admin_comment
     application.reviewed_at = datetime.now(timezone.utc)
 
+
+def _grant_role(user: User, role: RoleName) -> None:
+    if not user.has_role(role):
+        user.roles.append(UserRole(role=role))
+
+
+def _update_fields(obj, values: dict) -> None:
+    for field, value in values.items():
+        setattr(obj, field, value)
+
+
+#seller
+def submit_seller_application(
+    db: Session, user: User, data: SellerApplicationCreate ) -> SellerApplication:
+    _ensure_can_apply(db, SellerApplication, user, RoleName.SELLER)
+    if data.category_id is not None:
+        category_service.get_category(db, data.category_id)
+    return _save(db, SellerApplication(user_id=user.id, **data.model_dump()))
+
+
+def get_latest_seller_application(db: Session, user_id: int) -> SellerApplication:
+    return _get_latest(db, SellerApplication, user_id)
+
+
+def list_seller_applications(
+    db: Session, status: ApplicationStatus | None = None ) -> list[SellerApplication]:
+    return _list(db, SellerApplication, status)
+
+
+def get_seller_application(db: Session, application_id: int) -> SellerApplication:
+    return _get(db, SellerApplication, application_id)
+
+
+def review_seller_application(
+    db: Session, application_id: int, data: ApplicationReview ) -> SellerApplication:
+    application = _get(db, SellerApplication, application_id)
+    _apply_review(application, data)
     if data.status == ApplicationStatus.APPROVED:
         _activate_seller(application)
-
     db.commit()  # статус, роль и магазин сохраняются одной транзакцией
     db.refresh(application)
     return application
@@ -100,22 +127,18 @@ def review_seller_application(
 
 def _activate_seller(application: SellerApplication) -> None:
     user = application.user
-    if not user.has_role(RoleName.SELLER):
-        user.roles.append(UserRole(role=RoleName.SELLER))
-
+    _grant_role(user, RoleName.SELLER)
     store_data = {
         "store_name": application.store_name,
         "store_description": application.store_description,
         "address": application.address,
-        "phone_number": application.phone_number,  }
+        "phone_number": application.phone_number, }
     if user.seller_profile is None:
         user.seller_profile = SellerProfile(**store_data)
     else:
-        for field, value in store_data.items():
-            setattr(user.seller_profile, field, value)
+        _update_fields(user.seller_profile, store_data)
 
 
-#seller profile(store )
 def get_seller_profile(user: User) -> SellerProfile:
     if user.seller_profile is None:
         raise SellerProfileNotFoundError
@@ -125,9 +148,7 @@ def get_seller_profile(user: User) -> SellerProfile:
 def update_seller_profile(
     db: Session, user: User, data: SellerProfileUpdate ) -> SellerProfile:
     profile = get_seller_profile(user)
-    for field, value in data.model_dump(exclude_unset=True, exclude_none=True).items():
-        setattr(profile, field, value)
+    _update_fields(profile, data.model_dump(exclude_unset=True, exclude_none=True))
     db.commit()
     db.refresh(profile)
     return profile
-

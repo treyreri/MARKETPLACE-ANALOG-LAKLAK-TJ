@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import relationship
 
 if TYPE_CHECKING:
-    from app.models.product import Product, SellerProfile
+    from app.models.product import Product, SellerProfile, CourierProfile
 
 
 
@@ -40,6 +40,9 @@ class User(Base):
             return self.seller_profile.store_name
         full_name = " ".join(filter(None, [self.first_name, self.last_name]))
         return full_name or f"Seller #{self.id}"
+   
+    courier_profile: Mapped["CourierProfile | None"] = relationship(
+        back_populates="user", cascade="all, delete-orphan" )
 
 class UserRole(Base):
     __tablename__ = "user_roles"
