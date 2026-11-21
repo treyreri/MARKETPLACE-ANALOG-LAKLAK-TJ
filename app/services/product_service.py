@@ -2,11 +2,13 @@ from fastapi import UploadFile
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, contains_eager, joinedload
 from app.models.category import Category
+from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.product import ProductCreate, ProductFilters, ProductUpdate
 from app.services import category_service
-from app.utils.enums import ProductSort
+from app.utils.enums import OrderStatus, ProductSort
 from app.utils.files import delete_file, save_product_image
 
 
@@ -20,14 +22,18 @@ SORT_ORDER = {
     ProductSort.PRICE_DESC: Product.price.desc(), }
 
 
-#public
-def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product], int]:
-    stmt = (
-        select(Product)
-        .join(Product.category)
-        .join(Product.seller)
-        .where(Product.is_active.is_(True), User.is_active.is_(True)) )
+def _units_sold_subquery():
+    """Units sold per product, ignoring cancelled orders."""
+    return (
+        select(OrderItem.product_id, func.sum(OrderItem.quantity).label("units_sold"))
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(Order.status != OrderStatus.CANCELLED, OrderItem.product_id.is_not(None))
+        .group_by(OrderItem.product_id)
+        .subquery() )
 
+
+def _apply_filters(stmt, filters: ProductFilters):
+    """Text search and filters; stmt must already join Category."""
     query = (filters.q or "").strip().lower()
     if query:
         stmt = stmt.where( or_(
@@ -42,15 +48,35 @@ def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product]
         stmt = stmt.where(Product.price >= filters.min_price)
     if filters.max_price is not None:
         stmt = stmt.where(Product.price <= filters.max_price)
+    return stmt
 
+
+def _paginate(db: Session, stmt, filters: ProductFilters) -> tuple[list[Product], int]:
     total = db.scalar(select(func.count()).select_from(stmt.subquery()))
+
+    if filters.sort == ProductSort.POPULAR:
+        sold = _units_sold_subquery()
+        stmt = stmt.outerjoin(sold, sold.c.product_id == Product.id)
+        order = func.coalesce(sold.c.units_sold, 0).desc()
+    else:
+        order = SORT_ORDER[filters.sort]
 
     stmt = (
         stmt.options(contains_eager(Product.category), contains_eager(Product.seller))
-        .order_by(SORT_ORDER[filters.sort], Product.id.desc())
+        .order_by(order, Product.id.desc())
         .limit(filters.limit)
         .offset(filters.offset) )
     return list(db.scalars(stmt)), total
+
+
+#public
+def search_products(db: Session, filters: ProductFilters) -> tuple[list[Product], int]:
+    stmt = (
+        select(Product)
+        .join(Product.category)
+        .join(Product.seller)
+        .where(Product.is_active.is_(True), User.is_active.is_(True)) )
+    return _paginate(db, _apply_filters(stmt, filters), filters)
 
 
 def get_public_product(db: Session, product_id: int) -> Product:

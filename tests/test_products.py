@@ -302,3 +302,26 @@ def test_upload_rejects_invalid_images(client, product, seller_headers, image_di
     response = client.post(f"/seller/products/{product.id}/image", files=files, headers=seller_headers)
     assert response.status_code == 400
     assert not image_dir.exists() or not list(image_dir.iterdir())
+
+
+def test_sort_popular_by_units_sold_excluding_cancelled(client, db, make_product, make_user, seller, category):
+    from app.models import Order, OrderItem
+    from app.utils.enums import OrderStatus
+    a = make_product(seller, category, name="A")
+    b = make_product(seller, category, name="B")
+    c = make_product(seller, category, name="C")  # never sold
+    buyer = make_user()
+
+    def order(status, *lines):
+        o = Order(user_id=buyer.id, recipient_name="x", phone_number="+992900000001",
+                  address="x", total_price=Decimal("0"), status=status)
+        o.items = [OrderItem(product_id=p.id, seller_id=seller.id, product_name=p.name,
+                             price=p.price, quantity=q) for p, q in lines]
+        db.add(o)
+
+    order(OrderStatus.DELIVERED, (a, 2), (b, 3))
+    order(OrderStatus.PENDING, (a, 2))           # a: 4 units
+    order(OrderStatus.CANCELLED, (b, 10))        # ignored, b stays at 3
+    db.commit()
+
+    assert names(client.get("/products", params={"sort": "popular"})) == ["A", "B", "C"]
