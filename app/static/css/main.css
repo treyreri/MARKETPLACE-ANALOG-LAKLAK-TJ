@@ -455,6 +455,11 @@ select.input { appearance: none; padding-right: 36px; background-image: linear-g
 .delivery-card .row .btn-primary { flex: 1; }
 @media (max-width: 520px) { .delivery-grid { grid-template-columns: 1fr; } }
 
+.static-page { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.static-page .unicorn-hero, .static-page [data-unicorn="hero"] { width: 220px; height: 220px; }
+.contact-list { margin-top: 16px; }
+@media (max-width: 860px) { .static-page { grid-template-columns: 1fr; } .static-page .empty-state { order: -1; padding: 8px; } }
+
 /* pixel unicorn */
 .unicorn { display: inline-flex; line-height: 0; }
 .unicorn svg { width: 100%; height: 100%; image-rendering: pixelated; }

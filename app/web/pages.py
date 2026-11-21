@@ -56,18 +56,6 @@ def app_page(path: str, script: str, page: str, kind: str | None = None) -> None
     router.add_api_route(path, view, methods=["GET"], response_class=HTMLResponse)
 
 
-# Linked from the layout but not built yet: a friendly placeholder instead of 404
-COMING_SOON = [
-    "/about", "/contact",
-]
-
-
-def _coming_soon(request: Request):
-    return render(request, "coming_soon.html", "coming-soon")
-
-
-for _path in COMING_SOON:
-    router.add_api_route(_path, _coming_soon, methods=["GET"], response_class=HTMLResponse)
 
 
 app_page("/account/orders", "orders.js", "orders")
@@ -84,3 +72,6 @@ app_page("/courier/apply", "apply.js", "apply", kind="courier")
 app_page("/dashboard/courier", "courier.js", "courier-dashboard")
 app_page("/admin", "admin.js", "admin")
 app_page("/dashboard/admin", "admin.js", "admin")
+app_page("/about", "static.js", "about", kind="about")
+app_page("/contact", "static.js", "contact", kind="contact")
+app_page("/terms", "static.js", "terms", kind="terms")
