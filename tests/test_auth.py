@@ -42,7 +42,6 @@ def test_register_duplicate_phone(client):
     assert response.status_code == 409
 
 
-@pytest.mark.xfail(reason="#11: concurrent duplicate registration -> IntegrityError -> 500")
 def test_register_duplicate_phone_race(client, monkeypatch):
     client.post("/auth/register", json=REGISTER)
     # Second request passed the existence check before the first one committed

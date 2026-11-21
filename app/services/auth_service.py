@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -20,7 +21,12 @@ def register_user(db: Session, data: UserRegister) -> User:
         first_name = data.first_name,
         last_name = data.last_name , )
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # A concurrent request registered the same phone after our check
+        db.rollback()
+        raise PhoneAlreadyRegisteredError
     db.refresh(user)
     return user
 
