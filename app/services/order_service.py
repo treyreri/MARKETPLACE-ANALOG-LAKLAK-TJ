@@ -108,13 +108,22 @@ def _restock(db: Session, order: Order) -> None:
                 .values(quantity=Product.quantity + item.quantity) )
 
 
-def _change_status(db: Session, order: Order, new_status: OrderStatus) -> Order:
+def apply_status_change(db: Session, order: Order, new_status: OrderStatus) -> None:
+    """Validate and apply a status transition without committing.
+
+    Callers (e.g. delivery_service) combine it with other changes
+    and commit everything in a single transaction.
+    """
     if new_status not in ALLOWED_TRANSITIONS[order.status]:
         raise InvalidStatusTransitionError(order.status, new_status)
+    if new_status == OrderStatus.CANCELLED:
+        _restock(db, order)
+    order.status = new_status
+
+
+def _change_status(db: Session, order: Order, new_status: OrderStatus) -> Order:
     try:
-        if new_status == OrderStatus.CANCELLED:
-            _restock(db, order)
-        order.status = new_status
+        apply_status_change(db, order, new_status)
         db.commit()
     except Exception:
         db.rollback()
