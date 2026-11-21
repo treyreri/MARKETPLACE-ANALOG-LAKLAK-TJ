@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container section" data-catalog>
+  <form class="catalog-search" role="search">
+    <input class="input" type="search" name="q" autocomplete="off" data-i18n-placeholder="search.placeholder" data-i18n-aria="search.placeholder">
+    <button class="btn btn-primary" type="submit" data-i18n="search.button">Search</button>
+  </form>
+
+  <div class="catalog-layout">
+    <details class="filters" open>
+      <summary data-i18n="catalog.filters">Filters</summary>
+      <form class="filters-form">
+        <label class="field">
+          <span data-i18n="catalog.category">Category</span>
+          <select class="input" name="category_id">
+            <option value="" data-i18n="catalog.all_categories">All categories</option>
+          </select>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span data-i18n="catalog.min_price">Min price</span>
+            <input class="input" name="min_price" type="number" min="0" step="1" inputmode="decimal">
+          </label>
+          <label class="field">
+            <span data-i18n="catalog.max_price">Max price</span>
+            <input class="input" name="max_price" type="number" min="0" step="1" inputmode="decimal">
+          </label>
+        </div>
+        <label class="field">
+          <span data-i18n="catalog.sort">Sort</span>
+          <select class="input" name="sort">
+            <option value="newest" data-i18n="catalog.sort_newest">Newest</option>
+            <option value="popular" data-i18n="catalog.sort_popular">Popular</option>
+            <option value="price_asc" data-i18n="catalog.sort_price_asc">Price: low to high</option>
+            <option value="price_desc" data-i18n="catalog.sort_price_desc">Price: high to low</option>
+          </select>
+        </label>
+        <small class="field-error" data-field="price-error" hidden data-i18n="catalog.price_error">Min price cannot be greater than max price</small>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-action="reset" data-i18n="catalog.reset">Reset</button>
+          <button type="submit" class="btn btn-secondary btn-sm" data-i18n="catalog.apply">Apply</button>
+        </div>
+      </form>
+    </details>
+
+    <div class="catalog-results">
+      <p class="muted results-count" data-field="count" aria-live="polite"></p>
+      <div class="product-grid" data-results></div>
+      <nav class="pagination" data-pagination aria-label="Pagination"></nav>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/catalog.js"></script>
+{% endblock %}

@@ -44,9 +44,13 @@ def shopping_cart(request: Request):
     return render(request, "cart.html", "cart")
 
 
+@router.get("/catalog", response_class=HTMLResponse)
+def catalog(request: Request):
+    return render(request, "catalog.html", "catalog")
+
+
 # Linked from the layout but not built yet: a friendly placeholder instead of 404
 COMING_SOON = [
-    "/catalog",
     "/account/orders", "/about", "/contact",
     "/become-seller", "/seller/login", "/become-courier", "/courier/login",
 ]
