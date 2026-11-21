@@ -16,8 +16,8 @@ def register_user(db: Session, data: UserRegister) -> User:
         raise PhoneAlreadyRegisteredError
     user = User( 
         phone_number=data.phone_number,
-        password_hash = hash_password() ,
-        fisrt_name = data.first_name,
+        password_hash = hash_password(data.password),
+        first_name = data.first_name,
         last_name = data.last_name , )
     db.add(user)
     db.commit()
