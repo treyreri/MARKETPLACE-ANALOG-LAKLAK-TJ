@@ -174,3 +174,11 @@ def test_approve_keeps_existing_user_names(client, db, customer, customer_header
     review(client, "courier", application_id, admin_headers, "approved")
     db.expire_all()
     assert customer.first_name == "Ali"
+
+
+def test_second_pending_blocked_by_db_under_race(client, kind, customer_headers, monkeypatch):
+    from app.services import application_service
+    submit(client, kind, customer_headers)
+    # Simulate a request that passed the pending check before the first one committed
+    monkeypatch.setattr(application_service, "_ensure_can_apply", lambda *args: None)
+    assert submit(client, kind, customer_headers).status_code == 409

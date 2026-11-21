@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import Enum, ForeignKey, String, Text, func
+from sqlalchemy import Enum, ForeignKey, Index, String, Text, func, text
 from app.models.types import UTCDateTime
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from app.utils.enums import ApplicationStatus
@@ -24,6 +24,15 @@ class ApplicationMixin:
     created_at: Mapped[datetime] = mapped_column(
         UTCDateTime(), server_default=func.now() )
     reviewed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+
+    @declared_attr.directive
+    def __table_args__(cls):
+        # At most one pending application per user, enforced by the DB even under a race
+        return (
+            Index(
+                f"uq_{cls.__tablename__}_user_id_pending", "user_id",
+                unique=True, sqlite_where=text("status = 'PENDING'")),
+        )
 
     @declared_attr
     def user_id(cls) -> Mapped[int]:

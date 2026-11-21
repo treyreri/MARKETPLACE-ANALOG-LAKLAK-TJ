@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.models.courier_application import CourierApplication
 from app.models.courier_profile import CourierProfile
@@ -33,9 +34,14 @@ class SellerProfileNotFoundError(Exception):
 
 
 #shared helpers (work with any application model)
-def _save(db: Session, obj):
+def _save_application(db: Session, obj):
     db.add(obj)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Partial unique index: a concurrent request already created a pending one
+        db.rollback()
+        raise ApplicationAlreadyPendingError
     db.refresh(obj)
     return obj
 
@@ -106,7 +112,7 @@ def submit_seller_application(
     _ensure_can_apply(db, SellerApplication, user, RoleName.SELLER)
     if data.category_id is not None:
         category_service.get_category(db, data.category_id)
-    return _save(db, SellerApplication(user_id=user.id, **data.model_dump()))
+    return _save_application(db, SellerApplication(user_id=user.id, **data.model_dump()))
 
 
 def get_latest_seller_application(db: Session, user_id: int) -> SellerApplication:
@@ -171,7 +177,7 @@ class CourierProfileNotFoundError(Exception):
 def submit_courier_application(
     db: Session, user: User, data: CourierApplicationCreate ) -> CourierApplication:
     _ensure_can_apply(db, CourierApplication, user, RoleName.COURIER)
-    return _save(db, CourierApplication(user_id=user.id, **data.model_dump()))
+    return _save_application(db, CourierApplication(user_id=user.id, **data.model_dump()))
 
 
 def get_latest_courier_application(db: Session, user_id: int) -> CourierApplication:
