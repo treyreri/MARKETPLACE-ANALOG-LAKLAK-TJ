@@ -133,6 +133,7 @@ def update_my_store(data: SellerProfileUpdate, seller: SellerUser, db: DbSession
 
 
 from app.schemas.order import SellerOrderRead
+from app.schemas.seller import SellerStatistics
 from app.services import order_service
 
 
@@ -141,3 +142,8 @@ def list_my_orders(seller: SellerUser, db: DbSession):
     return [
         SellerOrderRead.from_items(order, items)
         for order, items in order_service.list_seller_orders(db, seller.id) ]
+
+
+@router.get("/statistics", response_model=SellerStatistics)
+def get_my_statistics(seller: SellerUser, db: DbSession):
+    return order_service.seller_statistics(db, seller.id)

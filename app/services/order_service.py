@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy import select, update
+from sqlalchemy import distinct, func, select, update
 from sqlalchemy.orm import Session, joinedload
 from app.models.order import Order
 from app.models.order_item import OrderItem
@@ -202,3 +202,35 @@ def list_seller_orders(
     for item in items:
         grouped.setdefault(item.order_id, []).append(item)
     return [(order_items[0].order, order_items) for order_items in grouped.values()]
+
+
+def seller_statistics(db: Session, seller_id: int) -> dict:
+    def count_products(*conditions) -> int:
+        return db.scalar(
+            select(func.count()).select_from(Product).where(Product.seller_id == seller_id, *conditions))
+
+    # Summed in Python with Decimal: SQLite SUM over NUMERIC returns float
+    delivered = db.execute(
+        select(OrderItem.price, OrderItem.quantity)
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(OrderItem.seller_id == seller_id, Order.status == OrderStatus.DELIVERED)).all()
+    revenue = sum((Decimal(price) * quantity for price, quantity in delivered), Decimal("0"))
+
+    by_status = {status: 0 for status in OrderStatus}
+    rows = db.execute(
+        select(Order.status, func.count(distinct(Order.id)))
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .where(OrderItem.seller_id == seller_id)
+        .group_by(Order.status))
+    for status, count in rows:
+        by_status[status] = count
+
+    return {
+        "product_count": count_products(),
+        "active_product_count": count_products(Product.is_active.is_(True)),
+        "out_of_stock_count": count_products(Product.quantity == 0),
+        "units_sold": sum(quantity for _, quantity in delivered),
+        "revenue": revenue.quantize(Decimal("0.01")),
+        "order_count": sum(by_status.values()),
+        "orders_by_status": by_status,
+    }

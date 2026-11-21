@@ -1,8 +1,9 @@
 from datetime import datetime
+from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.common import not_nullable
 from app.schemas.user import PhoneNumber
-from app.utils.enums import ApplicationStatus
+from app.utils.enums import ApplicationStatus, OrderStatus
 from app.schemas.application import ApplicationCreateBase, ApplicationReadBase
 
 
@@ -34,3 +35,14 @@ class SellerProfileUpdate(BaseModel):
     phone_number: PhoneNumber | None = None
 
     _not_null = not_nullable("store_name", "address", "phone_number")
+
+
+class SellerStatistics(BaseModel):
+    """Spec section 13. Units sold and revenue count delivered orders only."""
+    product_count: int
+    active_product_count: int
+    out_of_stock_count: int
+    units_sold: int
+    revenue: Decimal
+    order_count: int
+    orders_by_status: dict[OrderStatus, int]
