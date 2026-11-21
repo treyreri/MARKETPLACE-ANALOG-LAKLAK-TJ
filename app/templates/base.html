@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Pixel Unicorn{% endblock %}</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/main.css">
+  <script>
+    // Set language before first paint to avoid a flash of the wrong language
+    try {
+      var lang = localStorage.getItem("pu_lang");
+      if (lang === "ru" || lang === "en") document.documentElement.lang = lang;
+    } catch (e) {}
+    document.documentElement.classList.add("i18n-pending");
+  </script>
+</head>
+<body data-page="{{ page }}">
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="Pixel Unicorn">
+        <span class="brand-mark" data-unicorn="logo"></span>
+        <span class="brand-name">Pixel Unicorn</span>
+      </a>
+
+      <form class="header-search" action="/catalog" method="get" role="search">
+        <input class="input" type="search" name="q" autocomplete="off"
+               data-i18n-placeholder="search.placeholder" aria-label="Search">
+        <button class="btn btn-primary btn-icon" type="submit" data-i18n-aria="search.button">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </form>
+
+      <nav class="header-actions" aria-label="Account">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" data-lang="ru">RU</button>
+          <span aria-hidden="true">|</span>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+
+        <div class="guest-only">
+          <a class="link-btn" href="/login" data-i18n="auth.login">Login</a>
+          <a class="btn btn-secondary btn-sm" href="/register" data-i18n="auth.register">Register</a>
+        </div>
+
+        <div class="user-only user-menu">
+          <button type="button" class="link-btn user-menu-toggle" aria-haspopup="true" aria-expanded="false">
+            <span class="user-name"></span>
+          </button>
+          <div class="user-menu-list" hidden>
+            <a href="/orders" data-i18n="nav.orders">My orders</a>
+            <button type="button" data-action="logout" data-i18n="auth.logout">Logout</button>
+          </div>
+        </div>
+
+        <a class="cart-link" href="/cart" data-i18n-aria="nav.cart">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+          <span class="cart-label" data-i18n="nav.cart">Cart</span>
+          <span class="cart-count" hidden>0</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <span class="brand-mark" data-unicorn="logo"></span>
+          <span class="brand-name">Pixel Unicorn</span>
+        </a>
+        <p class="muted" data-i18n="footer.tagline">Marketplace for everyday things</p>
+      </div>
+      <div>
+        <h3 data-i18n="footer.customer">Customer</h3>
+        <ul>
+          <li><a href="/about" data-i18n="footer.about">About us</a></li>
+          <li><a href="/contact" data-i18n="footer.contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="footer.seller">Seller</h3>
+        <ul>
+          <li><a href="/become-seller" data-i18n="footer.become_seller">Become a Seller</a></li>
+          <li><a href="/seller/login" data-i18n="footer.seller_login">Seller Login</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="footer.courier">Courier</h3>
+        <ul>
+          <li><a href="/become-courier" data-i18n="footer.become_courier">Become a Courier</a></li>
+          <li><a href="/courier/login" data-i18n="footer.courier_login">Courier Login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom muted">© 2026 Pixel Unicorn</div>
+  </footer>
+
+  <div class="lang-picker" hidden role="dialog" aria-modal="true" aria-labelledby="lang-picker-title">
+    <div class="lang-picker-card">
+      <span data-unicorn="empty"></span>
+      <h2 id="lang-picker-title">Выберите язык · Choose language</h2>
+      <div class="lang-picker-actions">
+        <button type="button" class="btn btn-primary" data-pick-lang="ru">Русский</button>
+        <button type="button" class="btn btn-secondary" data-pick-lang="en">English</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-region" aria-live="polite"></div>
+
+  <script type="module" src="/static/js/layout.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
