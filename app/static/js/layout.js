@@ -1,6 +1,7 @@
 // Shared page chrome: translations, language switch, auth state in header, cart badge, toasts.
 import { api, getToken, isAuthenticated, logout } from "./api.js";
 import { applyTranslations, getLang, hasChosenLang, setLang } from "./i18n.js";
+import { renderUnicorns } from "./unicorn.js";
 
 export function toast(message, { error = false } = {}) {
   const region = document.querySelector(".toast-region");
@@ -90,6 +91,7 @@ function initSearch() {
 }
 
 applyTranslations();
+renderUnicorns();
 document.documentElement.classList.remove("i18n-pending");
 initLanguage();
 initUserMenu();
